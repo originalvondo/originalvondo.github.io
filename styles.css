@@ -17,86 +17,86 @@ a {
 	text-decoration: none;
 	font-size: 1.1em;
 	color: black;
+}
 
-	&:hover {
-		text-decoration: underline;
-	}
+a:hover {
+	text-decoration: underline;
 }
 
 header {
 	display: flex;
 	justify-content: space-between;
 	margin-bottom: 3rem;
+}
 
-	#header-left {
-		display: flex;
-		gap: .2rem;
+#header-left {
+	display: flex;
+	gap: .2rem;
 
-		#divider {
-			align-self: center;
-			height: 75%;
-			margin: 0 1rem;
-			border-right: 1px solid grey;
-		}
-
-		a[id="Section"] {
-			transform: translateY(25%);
-		}
+	#divider {
+		align-self: center;
+		height: 75%;
+		margin: 0 1rem;
+		border-right: 1px solid grey;
 	}
 
-	nav ul {
-		display: flex;
-		list-style: none;
-		gap: 2rem;
-
-		li {
-			transform: translateY(50%);
-		}
+	a[id="Section"] {
+		transform: translateY(25%);
 	}
+}
 
+header nav ul {
+	display: flex;
+	list-style: none;
+	gap: 2rem;
+
+	li {
+		transform: translateY(50%);
+	}
 }
 
 main {
 	display: flex;
+}
 
-	#hero {
-		width: 60%;
+#hero {
+	width: 60%;
+}
 
-		h1 {
-			font-size: 96px;
-			font-weight: lighter;
-		}
+#hero h1 {
+	font-size: 96px;
+	font-weight: lighter;
+}
 
-		p {
-			width: 65%;
-			margin-bottom: 2rem;
-		}
+#hero p {
+	width: 65%;
+	margin-bottom: 2rem;
+}
 
-		#button {
-			font-size: 25px;
-			font-weight: bold;
-			padding: 1rem;
-			background: #F88600;
-			color: white;
-			border-radius: 15px;
-			transition: all 0.3s ease-in-out;
-			border: 0;
+#button {
+	font-size: 25px;
+	font-weight: bold;
+	padding: 1rem;
+	background: #F88600;
+	color: white;
+	border-radius: 15px;
+	transition: all 0.3s ease-in-out;
+	border: 0;
+}
 
-			&:hover {
-				background: #17950C;
-				cursor: pointer;
-				text-decoration: none;
-			}
-		}
-	}
+#button:hover {
+	background: #17950C;
+	cursor: pointer;
+	text-decoration: none;
+}
 
-	#image-container {
-		width: 40%;
 
-		img {
-			width: 100%;
-		}
-	}
+#image-container {
+	width: 40%;
+}
+
+#image-container img {
+	width: 100%;
 }
 
 footer {
@@ -106,9 +106,9 @@ footer {
 	display: block;
 	height: 50px;
 	width: 100%;
+}
 
-	h2 {
-		font-family: var(--secondary-font);
-		transform: translateY(25%);
-	}
+footer h2 {
+	font-family: var(--secondary-font);
+	transform: translateY(25%);
 }
