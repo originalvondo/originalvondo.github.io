@@ -365,7 +365,6 @@ button {
             display: flex;
             justify-content: space-between;
             align-items: center;
-
         }
     }
 
@@ -474,5 +473,9 @@ button {
         & .project-info {
             padding: 10px 20px;
         }
+    }
+
+    .hide-mobile {
+        display: none;
     }
 }

@@ -394,6 +394,9 @@ button.contact:active::before {
   #projects-section .project-info {
     padding: 10px 20px;
   }
+  .hide-mobile {
+    display: none;
+  }
 }
 
 /*# sourceMappingURL=styles.css.map */
