@@ -1,55 +1,181 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
-	<link href="https://fonts.googleapis.com/css2?family=Kode+Mono:wght@400..700&display=swap" rel="stylesheet">
-	<link rel="stylesheet" type="text/css" href="styles.css">
-	<title>Tanvirul Islam</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tanvirul Islam</title>
+    <link rel="stylesheet" href="./styles.css">
 </head>
+
 <body>
-	<header>
-		<div id="header-left">
-			<a href="#" id="logo">
-				<img src="logo.svg">
-			</a>
-			<div id="divider"></div>
-			<a href="#" id="Section">Home</a>
-		</div>
+    <header>
+        <div id="nav-container">
+            <div class="nav" id="nav-mobile">
+                <ul>
+                    <li>
+                        <img class="logo" src="./logo.png" alt="">
+                    </li>
+                    
+                    <a id="show-nav-btn">
+                        <img src="./hamburder_icon.png" alt="">
+                    </a>
+                </ul>
+            </div>
 
-		<nav>
-			<ul>
-				<li><a href="#">Projects</a></li>
-				<li><a href="#">Resume</a></li>
-				<li><a href="#">Blog</a></li>
-			</ul>
-		</nav>
-	</header>
+            <div class="nav margin-bottom" id="nav-desktop">
+                <div class="desktop" id="nav-left">
+                    <div style="color: black;" id="nav-close-btn-container" class="hide-desktop">
+                        <a id="nav-close-btn">
+                            <img src="./close.png" alt="">
+                        </a>
+                    </div>
 
-	<main>
-		<div id="hero">
-			<h1>Hi 👋</h1>
-			<h1>I am <img src="TANVIR.svg" alt="Text that says Tanvir"></h1>
+                    <ul>
+                        <li><img class="logo" src="./logo.png" alt=""></li>
+                        <li>About me</li>
+                        <li>Projects</li>
+                        <li>Contact</li>
+                        <li>More</li>
+                    </ul>
+                </div>
 
-			<p>
-				I am a Developer, Designer and Gamer from Bangladesh. And I like to make cool shit.
-			</p>
+                <div class="desktop" id="nav-right">
+                    <ul>
+                        <li>Blog</li>
+                        <li>Login</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
 
-			<a id="button" href="https://www.facebook.com/tanvir.15.02/">Let's be friends</a>
-		</div>
+    <div class="section margin-bottom margin-top" id="hero-section">
+        <div id="hero-left">
+            <h1>Hello, I'm <span id="name">Tanim</span></h1>
+            <p>
+                I'm a Developer, Designer and Creator from Bangladesh 😀
+            </p>
 
-		<div id="image-container">
-			<div id="images">
-				<img src="like.png" alt="Picture of a emoji">
-			</div>
-		</div>
-	</main>
+        </div>
 
-	<footer>
-		<h2>@Tanvir.15.02</h2>
-	</footer>
+        <div id="hero-right">
+            <img src="./me.png" alt="">
+        </div>
+
+        <div id="hero-cta">
+            <button class="contact">Get in Contact</button>
+        </div>
+    </div>
+
+    <div class="section margin-bottom" id="skills-section">
+        <div id="skills-left">
+            <div id="technical-skills" class="skill-card">
+                <h1>Technical Skills and proficiencies</h1>
+                <p>I'm proficient in many web development technologies</p>
+            </div>
+
+            <div class="skill-card">
+                <h1>Project Showcase</h1>
+                <p>Explore the projects that i've made</p>
+            </div>
+
+            <div class="skill-card">
+                <h1>Connect with me</h1>
+                <p>Get in contact with me.</p>
+            </div>
+        </div>
+
+        <div id="skills-right">
+            <img src="./me(2).png" alt="">
+        </div>
+    </div>
+
+    <div class="section margin-bottom" id="projects-section">
+        <div id="project-heading">
+            <h1 align="center">Projects</h1>
+            <p>This are some of the projects that I've done over the years</p>
+        </div>
+
+        <div id="project-content">
+            <div class="project margin-bottom" id="project">
+                <div class="project-image">
+                    <img src="./test.jpg" alt="">
+                </div>
+
+                <div class="project-info">
+                    <h2>Project 1</h2>
+                    <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Temporibus impedit cumque deleniti,
+                        earum quos omnis voluptatum, neque optio dicta cupiditate delectus provident esse aperiam,
+                        eligendi ullam illum debitis qui itaque.</p>
+                </div>
+            </div>
+            <div class="project margin-bottom" id="project">
+                <div class="project-image">
+                    <img src="./test.jpg" alt="">
+                </div>
+
+                <div class="project-info">
+                    <h2>Project 1</h2>
+                    <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Temporibus impedit cumque deleniti,
+                        earum quos omnis voluptatum, neque optio dicta cupiditate delectus provident esse aperiam,
+                        eligendi ullam illum debitis qui itaque.</p>
+                </div>
+            </div>
+            <div class="project margin-bottom" id="project">
+                <div class="project-image">
+                    <img src="./test.jpg" alt="">
+                </div>
+
+                <div class="project-info">
+                    <h2>Project 1</h2>
+                    <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Temporibus impedit cumque deleniti,
+                        earum quos omnis voluptatum, neque optio dicta cupiditate delectus provident esse aperiam,
+                        eligendi ullam illum debitis qui itaque.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <div class="section" id="footer">
+            <div id="caption">
+                <h2>Get in touch with me</h2>
+                <p>If you have any ideas or want to collaborate with me, please do reach out to me.</p>
+            </div>
+            <div id="cta">
+                <button class="contact">Contact me</button>
+            </div>
+
+            <div id="copyright">copyright @tanvirul.15.02</div>
+        </div>
+    </footer>
+
+    <script>
+        document.querySelector("#show-nav-btn").onclick = () => {
+            document.querySelector("#nav-desktop").style.transform = "translateX(0%)";
+        };
+
+        document.querySelector("#nav-close-btn").onclick = () => {
+            if (document.querySelector("#nav-desktop").style.transform == "translateX(0%)") {
+                document.querySelector("#nav-desktop").style.transform = "translateX(100%)";
+            };
+        };
+
+        window.onresize = () => {
+            if (window.innerWidth > 900) {
+                if (document.querySelector("#nav-desktop").style.transform == "translateX(100%)") {
+                    document.querySelector("#nav-desktop").style.transform = "translateX(0%)"
+                }
+            } else if (window.innerWidth < 899) {
+                if (document.querySelector("#nav-desktop").style.transform == "translateX(0%)") {
+                    document.querySelector("#nav-desktop").style.transform = "translateX(100%)"
+                }
+            }
+        };
+
+    </script>
 </body>
+
 </html>
