@@ -33,16 +33,16 @@
 
                     <ul>
                         <li><img class="logo hide-mobile" src="./images/logo.png" alt=""></li>
-                        <li>About Me</li>
-                        <li>Projects</li>
-                        <li>Contact 📞</li>
+                        <li><a href="#skills-section">About Me</a></li>
+                        <li><a href="#projects-section">Projects</a></li>
+                        <li id="contact">Contact 📞</li>
                     </ul>
                 </div>
 
                 <div class="desktop" id="nav-right">
                     <ul>
-                        <li>Blog</li>
-                        <li>GitHub</li>
+                        <li id="blog-btn">Blog</li>
+                        <li><a target="_blank" href="https://www.github.com/smokeytanvir/">GitHub</a> </li>
                     </ul>
                 </div>
             </div>
@@ -172,6 +172,15 @@
         document.querySelector("#hero-section-cta").onclick = () => {
             alert("nigga please 🙄")
         }
+
+        document.querySelector("#blog-btn").onclick = () => {
+            alert("working on it")
+        }
+
+        document.querySelector("#contact").onclick = () => {
+            alert("no")
+        }
+
 
     </script>
 </body>
