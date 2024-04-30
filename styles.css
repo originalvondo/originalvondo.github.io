@@ -161,6 +161,7 @@ button.contact:active::before {
   height: 100px;
   width: 200px;
 }
+
 .nav a {
   color: white;
   text-decoration: none;
