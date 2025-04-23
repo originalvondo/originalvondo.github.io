@@ -4,18 +4,18 @@
 @import url("https://fonts.googleapis.com/css?family=Rubik:700&display=swap");
 body {
   font-family: "Poppins";
-  --body-background-color: #874CCC;
+  --body-background-color: #864DC8;
   --nav-link-color: white;
   --nav-link-hover-color: lightgrey;
-  --hero-section-background-color: white;
+  --hero-section-background-color: #e8e5e8 ;
   --hero-section-text-color: black;
-  --skills-section-background-color: #344955;
-  --skills-section-text-color: rgb(240, 223, 191);
-  --projects-section-background-color: #C65BCF;
-  --project-background-color: #F27BBD;
+  --skills-section-background-color: #dabdede2;
+  --skills-section-text-color: rgb(255, 255, 255);
+  --projects-section-background-color: #dc91e3;
+  --project-background-color: #efabd2;
   --project-heading-color: black;
   --project-text-color: black;
-  --footer-background-color: white;
+  --footer-background-color: rgb(245, 221, 244);
   --button-color: white;
   --button-background-color: black;
   --button-hover-color: black;
