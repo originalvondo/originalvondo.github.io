@@ -19,7 +19,6 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  base: '/TanvirulIslam/',
   build: {
     outDir: 'docs',
   }
