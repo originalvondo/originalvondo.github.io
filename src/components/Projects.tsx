@@ -1,43 +1,52 @@
 import React from 'react';
 import { ExternalLink, Github, Smartphone, Globe, Zap, Heart, Star, Plus } from 'lucide-react';
+import lemonEngineImage from "../Assets/lemonEngine.png"
+import picsiImage from "../Assets/picsi.jpg"
+import speedOmeterImage from "../Assets/speed-o-meter.png"
+import airlinesImage from "../Assets/Airlines.png"
 
 const Projects = () => {
   const projects = [
     {
-      title: "EcoTracker App",
-      description: "A mobile app to track carbon footprint with AI recommendations 🌱",
-      tech: ["React Native", "Node.js", "MongoDB", "TensorFlow"],
-      image: "photo-1581091226825-a6a2a5aee158",
+      title: "Speed-O-Meter",
+      description: "A simple, lightweight C++ tool for benchmarking code in Chrome Tracing 🔧",
+      link: 'https://github.com/originalvondo/Speed-O-Meter',
+      tech: ["C++", "CMake", "JSON"],
+      image: speedOmeterImage,
       icon: Smartphone,
-      color: "from-green-500 to-emerald-500",
-      category: "Mobile App"
+      color: "from-green-200 to-emerald-500",
+      category: "Profiler"
     },
     {
-      title: "Neural Art Generator",
-      description: "AI-powered web platform for creating unique digital artwork 🎨",
-      tech: ["React", "Python", "PyTorch", "AWS"],
-      image: "photo-1461749280684-dccba630e2f6", 
+      title: "Picsi",
+      description: "A Pinterest-like website for uploading images 🎨",
+      projectLink: 'https://github.com/originalvondo/Picsi',
+      liveLink: 'https://smokeytanvir.pythonanywhere.com/',
+      tech: ["Python", "Django", "CSS", "MySQL"],
+      image: picsiImage, 
       icon: Zap,
       color: "from-purple-500 to-pink-500",
       category: "Web App"
     },
     {
-      title: "Social Impact Dashboard",
-      description: "Analytics platform for non-profit organizations to track impact 📊",
-      tech: ["Vue.js", "D3.js", "Express", "PostgreSQL"],
-      image: "photo-1488590528505-98d2b5aba04b",
+      title: "Airlines Flight Management",
+      description: "Analytics for flight management and booking 📊",
+      link: 'https://github.com/originalvondo/Airlines',
+      tech: ["Python", "Django", "SASS", "MySQL"],
+      image: airlinesImage,
       icon: Heart,
       color: "from-blue-500 to-cyan-500", 
       category: "Dashboard"
     },
     {
-      title: "Crypto Portfolio Tracker",
-      description: "Real-time cryptocurrency portfolio management with alerts 💰",
-      tech: ["Next.js", "TypeScript", "Redis", "WebSockets"],
-      image: "photo-1487058792275-0ad4aaf24ca7",
+      title: "LemonEngine",
+      description: "Real-time C++ graphics engine built with OpenGL and Win32 ⚡",
+      link: 'http://github.com/originalvondo/LemonEngine',
+      tech: ["C++", "Opengl", "GLM", "Win32"],
+      image: lemonEngineImage,
       icon: Globe,
-      color: "from-orange-500 to-yellow-500",
-      category: "FinTech"
+      color: "from-orange-100 to-yellow-500",
+      category: "Graphics Programming"
     }
   ];
 
@@ -82,7 +91,7 @@ const Projects = () => {
             >
               <div className="relative h-48 overflow-hidden">
                 <img
-                  src={`https://images.unsplash.com/${project.image}?auto=format&fit=crop&w=800&h=400`}
+                  src={project.image}
                   alt={project.title}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 />
@@ -119,14 +128,14 @@ const Projects = () => {
                 </div>
                 
                 <div className="flex space-x-4">
-                  <button className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full hover:scale-105 transition-transform duration-300 font-bold shadow-lg">
+                  <a href={project.liveLink} target='_blank' className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full hover:scale-105 transition-transform duration-300 font-bold shadow-lg">
                     <ExternalLink size={16} />
                     <span>Live Demo</span>
-                  </button>
-                  <button className="flex items-center space-x-2 px-6 py-3 border-2 border-gray-400 text-gray-700 rounded-full hover:bg-gray-100 hover:scale-105 transition-all duration-300 font-bold">
+                  </a>
+                  <a href={project.projectLink} target='_blank' className="flex items-center space-x-2 px-6 py-3 border-2 border-gray-400 text-gray-700 rounded-full hover:bg-gray-100 hover:scale-105 transition-all duration-300 font-bold">
                     <Github size={16} />
                     <span>Code</span>
-                  </button>
+                  </a>
                 </div>
               </div>
             </div>
