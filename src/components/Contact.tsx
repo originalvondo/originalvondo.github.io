@@ -96,15 +96,15 @@ const Contact = () => {
               <ul className="space-y-3 text-gray-800">
                 <li className="flex items-center font-semibold">
                   <Code className="text-green-500 mr-3" size={16} />
-                  I've written over 100k lines of code ⌨️
+                  I know about most of the web technologies out there, but I still haven't mastered any of them 🤭
                 </li>
                 <li className="flex items-center font-semibold">
                   <Coffee className="text-yellow-600 mr-3" size={16} />
-                  Powered by coffee and curiosity ☕
+                  I really love tea over coffee ☕
                 </li>
                 <li className="flex items-center font-semibold">
                   <Heart className="text-red-500 mr-3" size={16} />
-                  Love solving complex problems 🧩
+                  My mind always wants to know everthing about everything around me 🧩
                 </li>
               </ul>
             </div>
