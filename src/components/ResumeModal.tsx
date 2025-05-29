@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Download, FileText, Image, Printer } from 'lucide-react';
+import heroImage from '../Assets/Tanvir.jpg'
 
 interface ResumeModalProps {
   isOpen: boolean;
@@ -45,31 +46,32 @@ const ResumeModal: React.FC<ResumeModalProps> = ({ isOpen, onClose }) => {
             <div className="bg-gray-200 p-6 border-2 border-black">
               <div className="flex justify-between items-start">
                 <div className="bg-white px-4 py-2 border border-black rounded-full">
-                  <span className="text-sm font-medium">HANOI, VIETNAM</span>
+                  <span className="text-sm font-medium">Chattogram, Bangladesh</span>
                 </div>
                 <div className="text-center flex-1 mx-4">
                   <h1 className="text-3xl font-black tracking-wider">RESUMÉ</h1>
                   <div className="flex justify-center space-x-2 mt-1">
                     <span className="text-2xl">✦</span>
                     <span className="text-2xl">✦</span>
+                    <span className="text-2xl">✦</span>
                   </div>
                 </div>
                 <div className="bg-white p-3 border-2 border-black rounded-full">
                   <div className="w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center border-2 border-green-400">
-                    <span className="text-xs font-bold text-center leading-tight">FOR HIRE<br/>WITH FOR</span>
+                    <span className="text-xs font-bold text-center leading-tight">Open to Work</span>
                   </div>
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-3 gap-4 mt-4 text-center">
                 <div className="bg-white px-3 py-1 border border-black">
-                  <span className="text-sm font-medium">FULL STACK DEVELOPER</span>
+                  <span className="text-sm font-medium">Software Developer</span>
                 </div>
                 <div className="bg-white px-3 py-1 border border-black">
-                  <span className="text-sm font-medium">FULL STACK DEVELOPER</span>
+                  <span className="text-sm font-medium">Video Editor</span>
                 </div>
                 <div className="bg-white px-3 py-1 border border-black">
-                  <span className="text-sm font-medium">FULL STACK DEVELOPER</span>
+                  <span className="text-sm font-medium">Graphics Designer</span>
                 </div>
               </div>
             </div>
@@ -82,7 +84,7 @@ const ResumeModal: React.FC<ResumeModalProps> = ({ isOpen, onClose }) => {
                   <div className="w-32 h-32 bg-yellow-400 rounded-full p-1">
                     <div className="w-full h-full bg-green-400 rounded-full p-1">
                       <img
-                        src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&h=300"
+                        src={heroImage}
                         alt="Tanvirul Islam"
                         className="w-full h-full rounded-full object-cover"
                       />
@@ -97,18 +99,26 @@ const ResumeModal: React.FC<ResumeModalProps> = ({ isOpen, onClose }) => {
                     Hi there,
                   </h2>
                   <p className="text-sm leading-relaxed">
-                    My name is Tanvirul Islam, you may call me Tanvirul. I'm a 
-                    passionate Full Stack Developer based in Hanoi, Vietnam.
+                    Hi, I'm Tanvirul Islam, a creative person with a little bit of knowledge
+                    in everything. I'm like a "Jack of all trades, but master of none" kind
+                    of person. I always wanted to learn how "everything" works and so
+                    I set on my journey to learn about everything related to Science,
+                    Technology, and Art. And I'm very much into Photography and
+                    Designing.
                   </p>
                   <p className="text-sm leading-relaxed mt-2">
-                    As an experienced developer with over 3 years in the 
-                    industry, I specialize in creating modern web applications 
-                    for e-commerce and social media, events, and SaaS platforms.
+                    I always wanted to collaborate with people with the same mindset
+                    as me, thriving to create new technologies, making technology more
+                    useful and using it to help people. Which is why, I want to make
+                    technology more useful to medical research and purposes.
+                    I'm passionate about entrepreneurship and hoping to start my
+                    own creative business someday. I still have a lot to learn and I'm
+                    constantly learning about new technologies.
                   </p>
                   <p className="text-sm leading-relaxed mt-2">
-                    I am highly motivated, constantly seeking new skills and in-
-                    spiration to improve my craft, and eager to take on new 
-                    challenges to advance my career.
+                    I'm passionate about entrepreneurship and hoping to start my
+                    own creative business someday. I still have a lot to learn and I'm
+                    constantly learning about new technologies.
                   </p>
                 </div>
 
@@ -120,25 +130,25 @@ const ResumeModal: React.FC<ResumeModalProps> = ({ isOpen, onClose }) => {
                       <div className="bg-yellow-400 p-1 rounded">
                         <span className="text-xs">📱</span>
                       </div>
-                      <span className="text-sm">(+84) 968 616 280</span>
+                      <span className="text-sm">01606731752</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <div className="bg-yellow-400 p-1 rounded">
                         <span className="text-xs">✉️</span>
                       </div>
-                      <span className="text-sm">tanvirul98@gmail.com</span>
+                      <span className="text-sm">tanvirul.tanim1502@gmail.com</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <div className="bg-yellow-400 p-1 rounded">
                         <span className="text-xs">🔗</span>
                       </div>
-                      <span className="text-sm">be.net/tanvirul98</span>
+                      <span className="text-sm">https://www.instagram.com/tanu.15.02</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <div className="bg-yellow-400 p-1 rounded">
                         <span className="text-xs">📍</span>
                       </div>
-                      <span className="text-sm">Thanh Xuan, Hanoi</span>
+                      <span className="text-sm">Chattogram, Bangladesh</span>
                     </div>
                   </div>
                 </div>
@@ -155,17 +165,17 @@ const ResumeModal: React.FC<ResumeModalProps> = ({ isOpen, onClose }) => {
                     </div>
                     <div className="space-y-3">
                       <div className="flex items-start space-x-2">
-                        <div className="bg-yellow-400 px-2 py-1 rounded text-xs font-bold">2020</div>
+                        <div className="bg-yellow-400 px-2 py-1 rounded text-xs font-bold">2024</div>
                         <div>
-                          <div className="font-bold text-sm">COMPUTER SCIENCE UNIVERSITY</div>
-                          <div className="text-xs">7-month Specialization Course</div>
+                          <div className="font-bold text-sm">Govt. City College, Chattogram</div>
+                          <div className="text-xs">College</div>
                         </div>
                       </div>
                       <div className="flex items-start space-x-2">
                         <div className="bg-yellow-400 px-2 py-1 rounded text-xs font-bold">2019</div>
                         <div>
-                          <div className="font-bold text-sm">NATIONAL TECHNOLOGY UNIVERSITY</div>
-                          <div className="text-xs">International Computer Science</div>
+                          <div className="font-bold text-sm">Nasirabad Govt. High School</div>
+                          <div className="text-xs">High School</div>
                         </div>
                       </div>
                     </div>
@@ -177,11 +187,11 @@ const ResumeModal: React.FC<ResumeModalProps> = ({ isOpen, onClose }) => {
                       <h3 className="text-sm font-black">TECHNICAL SKILLS</h3>
                     </div>
                     <div className="grid grid-cols-3 gap-2">
-                      <div className="bg-blue-600 text-white p-2 rounded text-center text-xs font-bold">React</div>
+                      <div className="bg-blue-600 text-white p-2 rounded text-center text-xs font-bold">Django</div>
                       <div className="bg-orange-500 text-white p-2 rounded text-center text-xs font-bold">Node.js</div>
                       <div className="bg-blue-400 text-white p-2 rounded text-center text-xs font-bold">TypeScript</div>
-                      <div className="bg-green-500 text-white p-2 rounded text-center text-xs font-bold">MongoDB</div>
-                      <div className="bg-red-500 text-white p-2 rounded text-center text-xs font-bold">Python</div>
+                      <div className="bg-green-500 text-white p-2 rounded text-center text-xs font-bold">MySQL</div>
+                      <div className="bg-red-500 text-white p-2 rounded text-center text-xs font-bold">C++</div>
                     </div>
                   </div>
                 </div>
@@ -195,17 +205,17 @@ const ResumeModal: React.FC<ResumeModalProps> = ({ isOpen, onClose }) => {
                     </div>
                     <div className="space-y-3">
                       <div className="flex items-start space-x-2">
-                        <div className="bg-yellow-400 px-2 py-1 rounded text-xs font-bold">2023</div>
+                        <div className="bg-yellow-400 px-2 py-1 rounded text-xs font-bold">2025</div>
                         <div>
-                          <div className="font-bold text-sm">TECH STARTUP COMPANY</div>
-                          <div className="text-xs">Senior Full Stack Developer</div>
+                          <div className="font-bold text-sm">Tech Startup</div>
+                          <div className="text-xs">TwinGPT</div>
                         </div>
                       </div>
                       <div className="flex items-start space-x-2">
                         <div className="bg-yellow-400 px-2 py-1 rounded text-xs font-bold">2022</div>
                         <div>
-                          <div className="font-bold text-sm">FREELANCE DEVELOPER</div>
-                          <div className="text-xs">Full Stack Development</div>
+                          <div className="font-bold text-sm">Freelance Designer</div>
+                          <div className="text-xs">Poster Design, Graphics Design, Logo Design</div>
                         </div>
                       </div>
                       <div className="flex items-start space-x-2">
@@ -251,11 +261,10 @@ const ResumeModal: React.FC<ResumeModalProps> = ({ isOpen, onClose }) => {
               <button
                 key={value}
                 onClick={() => setSelectedFormat(value)}
-                className={`p-3 rounded-lg border-2 transition-all ${
-                  selectedFormat === value
+                className={`p-3 rounded-lg border-2 transition-all ${selectedFormat === value
                     ? 'border-blue-500 bg-blue-50'
                     : 'border-gray-200 bg-white hover:border-gray-300'
-                }`}
+                  }`}
               >
                 <Icon className={`${color} mx-auto mb-1`} size={20} />
                 <p className="text-xs font-medium">{label}</p>

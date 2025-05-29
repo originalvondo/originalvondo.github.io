@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Download, Github, Linkedin, Mail, Star, Sparkles, Plus, X } from 'lucide-react';
+import { Download, Github, Linkedin, Mail, Star, Sparkles, Plus, X, Link } from 'lucide-react';
 import ResumeModal from './ResumeModal';
 import heroImage from '../Assets/Tanvir.jpg'
+import { link } from 'fs';
 
 const Hero = () => {
   const [showResumeModal, setShowResumeModal] = useState(false);
@@ -85,8 +86,7 @@ const Hero = () => {
                 Hello! 👋
               </h2>
               <p className="text-gray-700 text-lg leading-relaxed mb-6">
-                I'm a passionate developer focused on creating amazing digital experiences. 
-                I love building beautiful interfaces and robust applications that make a difference! ✨
+                I'm Tanvirul, a 20 y/o student from Bangladesh. With a creative and knowledge-hungry mind, I have expertise in many different fields like Graphics Designing, Software Development, Creative Art, Video Editing and Animations. ✨
               </p>
               
               {/* Download Resume Button */}
@@ -101,15 +101,17 @@ const Hero = () => {
               {/* Social Links */}
               <div className="flex justify-center space-x-6">
                 {[
-                  { icon: Github, label: 'GitHub', color: 'text-gray-600 hover:text-gray-800', bg: 'hover:bg-gray-100' },
-                  { icon: Linkedin, label: 'LinkedIn', color: 'text-blue-600 hover:text-blue-800', bg: 'hover:bg-blue-50' },
-                  { icon: Mail, label: 'Email', color: 'text-red-500 hover:text-red-700', bg: 'hover:bg-red-50' }
-                ].map(({ icon: Icon, label, color, bg }, index) => (
+                  { icon: Github, label: 'GitHub', color: 'text-gray-600 hover:text-gray-800', bg: 'hover:bg-gray-100', link: 'https://github.com/originalvondo'},
+                  { icon: Linkedin, label: 'LinkedIn', color: 'text-blue-600 hover:text-blue-800', bg: 'hover:bg-blue-50', link: 'https://www.linkedin.com/in/tanvrul/'},
+                  { icon: Mail, label: 'Email', color: 'text-red-500 hover:text-red-700', bg: 'hover:bg-red-50', link: 'mailto:tanvirul.tanim1502@gmail.com'}
+                ].map(({ icon: Icon, label, color, bg, link }, index) => (
                   <a
                     key={label}
-                    href="#"
+                    href={link}
                     className={`${color} ${bg} p-3 rounded-full transition-all duration-300 hover:scale-125 transform animate-bounce border-2 border-transparent hover:border-current`}
                     style={{ animationDelay: `${index * 0.2}s` }}
+                    target='_blank'
+                    rel='noopener noreferrer'
                   >
                     <Icon size={24} />
                   </a>

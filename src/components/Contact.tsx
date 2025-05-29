@@ -68,9 +68,9 @@ const Contact = () => {
               
               <div className="space-y-6">
                 {[
-                  { icon: Mail, label: 'Email', value: 'tanvirul@portfolio.com', color: 'bg-blue-400', bgColor: 'bg-blue-100' },
-                  { icon: Phone, label: 'Phone', value: '+1 (555) 123-4567', color: 'bg-green-400', bgColor: 'bg-green-100' },
-                  { icon: MapPin, label: 'Location', value: 'San Francisco, CA', color: 'bg-purple-400', bgColor: 'bg-purple-100' }
+                  { icon: Mail, label: 'Email', value: 'tanvirul.tanim1502@gmail.com', color: 'bg-blue-400', bgColor: 'bg-blue-100' },
+                  { icon: Phone, label: 'Phone', value: '01606731752', color: 'bg-green-400', bgColor: 'bg-green-100' },
+                  { icon: MapPin, label: 'Location', value: 'Chittagong, Bangladesh', color: 'bg-purple-400', bgColor: 'bg-purple-100' }
                 ].map(({ icon: Icon, label, value, color, bgColor }, index) => (
                   <div 
                     key={label}
@@ -169,7 +169,7 @@ const Contact = () => {
         <div className="text-center mt-16 pt-8 border-t-4 border-blue-200">
           <div className="bg-pink-200 inline-block px-6 py-3 rounded-full transform rotate-1 hover:rotate-0 transition-transform duration-300 border-4 border-pink-300">
             <p className="text-gray-800 mb-2 font-bold">
-              Made with <Heart className="inline text-red-500" size={16} /> and lots of ☕
+              Hope you had a great time on my Portfolio website <Heart className="inline text-red-500" size={16} /> If you see me in real life, do invite me for a cup of tea ☕
             </p>
           </div>
           <p className="text-gray-600 text-sm mt-4 font-semibold">

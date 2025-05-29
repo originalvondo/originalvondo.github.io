@@ -4,32 +4,32 @@ import { GraduationCap, Award, BookOpen, Calendar, Star, Sparkles } from 'lucide
 const Education = () => {
   const educationData = [
     {
-      degree: "Master of Computer Science",
-      school: "Stanford University",
-      year: "2020-2022",
-      gpa: "3.9/4.0",
-      description: "Specialized in Machine Learning and Web Technologies 🤖",
+      degree: "College",
+      school: "Govt. City College, Chattogram",
+      year: "2023-2024",
+      gpa: "5.0/5.0",
+      description: "Completed my HSC exam from GCCC",
       icon: GraduationCap,
       color: "bg-blue-500",
       textColor: "text-blue-600"
     },
     {
-      degree: "Bachelor of Software Engineering",
-      school: "MIT",
-      year: "2016-2020",
-      gpa: "3.8/4.0", 
-      description: "Focus on Full Stack Development and UI/UX Design 💻",
+      degree: "High School",
+      school: "Nasirabad Govt. High School",
+      year: "2017-2022",
+      gpa: "5.0/5.0", 
+      description: "Completed my SSC from NGHS",
       icon: BookOpen,
       color: "bg-green-500",
       textColor: "text-green-600"
     },
     {
-      degree: "Certified AWS Solutions Architect",
-      school: "Amazon Web Services",
-      year: "2023",
-      gpa: "Professional",
-      description: "Cloud architecture and scalable systems design ☁️",
-      icon: Award,
+      degree: "School",
+      school: "Provati Shikkhya Niketon",
+      year: "2016",
+      gpa: "5.0/5.0",
+      description: "Completed my School",
+      icon: BookOpen,
       color: "bg-orange-500",
       textColor: "text-orange-600"
     }
