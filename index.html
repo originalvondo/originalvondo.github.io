@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tanvirul Islam</title>
+    <link rel="stylesheet" href="./styles.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4449106088437689"
+     crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <header>
+        <div id="nav-container">
+            <div class="nav" id="nav-mobile">
+                <ul>
+                    <li>
+                        <img class="logo" src="./images/logo.png" alt="">
+                    </li>
+
+                    <a id="show-nav-btn">
+                        <img src="./images/hamburder_icon.png" alt="">
+                    </a>
+                </ul>
+            </div>
+
+            <div class="nav margin-bottom" id="nav-desktop">
+                <div class="desktop" id="nav-left">
+                    <div style="color: black;" id="nav-close-btn-container" class="hide-desktop">
+                        <a id="nav-close-btn">
+                            <img src="./images/close.png" alt="">
+                        </a>
+                    </div>
+
+                    <ul>
+                        <li><img class="logo hide-mobile" src="./images/logo.png" alt=""></li>
+                        <li><a href="#skills-section">About Me</a></li>
+                        <li><a href="#projects-section">Projects</a></li>
+                        <li id="contact">Contact 📞</li>
+                    </ul>
+                </div>
+
+                <div class="desktop" id="nav-right">
+                    <ul>
+                        <li id="blog-btn">Blog</li>
+                        <li><a target="_blank" href="https://www.github.com/originalvondo/">GitHub</a> </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="section margin-bottom margin-top" id="hero-section">
+        <div id="hero-left">
+            <h1>Hello, I'm <span id="name">Tanim</span></h1>
+            <p>
+                And can I put my balls in yo jaws 😝
+            </p>
+        </div>
+
+        <div id="hero-right">
+            <img src="./images/me.png" alt="">
+        </div>
+
+        <div id="hero-cta">
+            <button id="hero-section-cta" class="contact">a really fucking cool button</button>
+        </div>
+    </div>
+
+    <div class="section margin-bottom" id="skills-section">
+        <div id="skills-left">
+            <div id="technical-skills" class="skill-card">
+                <h1>Technical Skills and proficiencies</h1>
+                <p>I smoke weed and C++</p>
+            </div>
+
+            <div class="skill-card">
+                <h1>Educational Background</h1>
+                <p>yes, i study dawg 😭🙏</p>
+            </div>
+
+            <div class="skill-card">
+                <h1>Connect with me</h1>
+                <p>oki, here's my <a style="color:rgb(255, 255, 255);" href="https://facebook.com/tanvir.15.02">onlyfans</a> 😝</p>
+            </div>
+        </div>
+
+        <div id="skills-right">
+            <img src="./images/me(2).png" alt="">
+        </div>
+    </div>
+
+    <div class="section margin-bottom" id="projects-section">
+        <div id="project-heading">
+            <h1 align="center">Projects</h1>
+            <p align="center">Some cool shid I done deez years</p>
+        </div>
+
+        <div id="project-content">
+            <div class="project margin-bottom" id="project">
+                <div class="project-image">
+                    <img src="./images/lemonEngine.png" alt="">
+                </div>
+
+                <div class="project-info">
+                    <h2>LemonEngine 🍋</h2>
+                    <p>A Game Engine designed, developed and created by me :O This is a demo project to showcase my skills in Computer Graphics and frameworks such as OpenGL</p>
+                </div>
+            </div>
+            <div class="project margin-bottom" id="project">
+                <div class="project-image">
+                    <img src="./images/speed-o-meter.png" alt="">
+                </div>
+
+                <div class="project-info">
+                    <h2>Speed-O-Meter</h2>
+                    <p>A profiler for benchmarking C++ code. This is specifically built for MinGW compilers and outputs a tracer JSON file that could be viewed in Chrome/Edge tracer</p>
+                </div>
+            </div>
+            <div class="project margin-bottom" id="project">
+                <div class="project-image">
+                    <img src="./images/picsi_project_image.jpg" alt="">
+                </div>
+
+                <div class="project-info">
+                    <h2>Picsi</h2>
+                    <p>An image sharing website, inspired by Pinterest. Here, you can upload, download or delete images as you like. The layout is similar to Pinterest, made using CSS Grids.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <div class="section" id="footer">
+            <div id="caption">
+                <h2>Get in touch with me</h2>
+                <p>If you have any ideas or want to collaborate with me, please do reach out to me.</p>
+            </div>
+            <div id="cta">
+                <button class="contact">Contact me</button>
+            </div>
+
+            <div id="copyright">copyright @tanvirul.15.02</div>
+        </div>
+    </footer>
+
+    <script>
+        document.querySelector("#show-nav-btn").onclick = () => {
+            document.querySelector("#nav-desktop").style.transform = "translateX(0%)";
+        };
+
+        document.querySelector("#nav-close-btn").onclick = () => {
+            if (document.querySelector("#nav-desktop").style.transform == "translateX(0%)") {
+                document.querySelector("#nav-desktop").style.transform = "translateX(100%)";
+            };
+        };
+
+        window.onresize = () => {
+            if (window.innerWidth > 900) {
+                if (document.querySelector("#nav-desktop").style.transform == "translateX(100%)") {
+                    document.querySelector("#nav-desktop").style.transform = "translateX(0%)"
+                }
+            } else if (window.innerWidth < 899) {
+                if (document.querySelector("#nav-desktop").style.transform == "translateX(0%)") {
+                    document.querySelector("#nav-desktop").style.transform = "translateX(100%)"
+                }
+            }
+        };
+
+        document.querySelector("#hero-section-cta").onclick = () => {
+            alert("yay, i fucking love javascript like ts so cool asf")
+        }
+
+        document.querySelector("#blog-btn").onclick = () => {
+            alert("working on it")
+        }
+
+        document.querySelector("#contact").onclick = () => {
+            alert("no")
+        }
+
+
+    </script>
+</body>
+
+</html>
