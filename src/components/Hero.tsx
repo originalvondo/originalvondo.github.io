@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Download, Github, Linkedin, Mail, Star, Sparkles, Plus, X, Link } from 'lucide-react';
 import ResumeModal from './ResumeModal';
-import heroImage from '../Assets/Tanvir.jpg'
 import { link } from 'fs';
+import tanvirsImage from "../Assets/Tanvir.jpg"
 
 const Hero = () => {
   const [showResumeModal, setShowResumeModal] = useState(false);
@@ -127,7 +127,7 @@ const Hero = () => {
               <div className="bg-white p-4 rounded-2xl shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-500 border-4 border-white">
                 <div className="relative overflow-hidden rounded-xl">
                   <img
-                    src={heroImage}
+                    src={tanvirsImage}
                     alt="Tanvirul Islam"
                     className="w-80 h-96 object-cover"
                   />
