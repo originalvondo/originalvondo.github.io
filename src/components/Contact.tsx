@@ -44,10 +44,10 @@ const Contact = () => {
 
       <div className="max-w-6xl mx-auto relative z-10">
         <div className="text-center mb-16">
-          <h2 className="text-6xl md:text-7xl font-black text-blue-600 mb-4 transform -rotate-1 hover:rotate-0 transition-transform duration-300">
+          <h2 className="text-4xl md:text-6xl font-black text-blue-600 mb-4 transform -rotate-1 hover:rotate-0 transition-transform duration-300">
             Let's
           </h2>
-          <h2 className="text-6xl md:text-7xl font-black text-purple-600 -mt-4 ml-8 transform rotate-2 hover:rotate-0 transition-transform duration-300">
+          <h2 className="text-4xl md:text-6xl font-black text-purple-600 -mt-4 ml-2 md:ml-8 transform rotate-2 hover:rotate-0 transition-transform duration-300">
             Connect! 🤝
           </h2>
           <div className="bg-yellow-300 inline-block px-6 py-3 rounded-full mt-6 transform rotate-1 hover:rotate-0 transition-transform duration-300">
@@ -57,11 +57,11 @@ const Contact = () => {
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Contact Info */}
           <div className="space-y-8">
             <div className="bg-white rounded-2xl p-8 border-4 border-blue-200 shadow-lg transform hover:scale-105 transition-transform duration-300">
-              <h3 className="text-2xl font-black text-gray-800 mb-6 flex items-center bg-gradient-to-r from-pink-400 to-red-400 bg-clip-text text-transparent">
+              <h3 className="text-xl md:text-2xl font-black text-gray-800 mb-6 flex items-center bg-gradient-to-r from-pink-400 to-red-400 bg-clip-text text-transparent">
                 <Heart className="text-red-400 mr-3" size={24} />
                 Get In Touch
               </h3>
@@ -71,7 +71,7 @@ const Contact = () => {
                   { icon: Mail, label: 'Email', value: 'tanvirul.tanim1502@gmail.com', color: 'bg-blue-400', bgColor: 'bg-blue-100' },
                   { icon: Phone, label: 'Phone', value: '01606731752', color: 'bg-green-400', bgColor: 'bg-green-100' },
                   { icon: MapPin, label: 'Location', value: 'Chittagong, Bangladesh', color: 'bg-purple-400', bgColor: 'bg-purple-100' }
-                ].map(({ icon: Icon, label, value, color, bgColor }, index) => (
+                ].map(({ icon: Icon, label, value, color, bgColor }) => (
                   <div
                     key={label}
                     className={`flex items-center space-x-4 p-4 ${bgColor} rounded-xl hover:scale-105 transition-transform duration-300 border-2 border-transparent hover:border-current`}
@@ -81,7 +81,7 @@ const Contact = () => {
                     </div>
                     <div>
                       <p className="text-gray-600 text-sm font-bold">{label}</p>
-                      <p className="text-gray-800 font-black text-lg">{value}</p>
+                      <p className="text-gray-800 font-black text-lg break-words">{value}</p>
                     </div>
                   </div>
                 ))}
@@ -104,7 +104,7 @@ const Contact = () => {
                 </li>
                 <li className="flex items-center font-semibold">
                   <Heart className="text-red-500 mr-3" size={16} />
-                  My mind always wants to know everthing about everything around me 🧩
+                  My mind always wants to know everything about everything around me 🧩
                 </li>
               </ul>
             </div>
@@ -112,7 +112,7 @@ const Contact = () => {
 
           {/* Contact Form */}
           <div className="bg-white rounded-2xl p-8 border-4 border-purple-200 shadow-lg transform hover:scale-105 transition-transform duration-300">
-            <h3 className="text-2xl font-black text-gray-800 mb-6 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Send Message 📧</h3>
+            <h3 className="text-xl md:text-2xl font-black text-gray-800 mb-6 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Send Message 📧</h3>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
@@ -165,7 +165,6 @@ const Contact = () => {
           </div>
         </div>
 
-        {/* Footer */}
         <div className="text-center mt-16 pt-8 border-t-4 border-blue-200">
           <div className="bg-pink-200 inline-block px-6 py-3 rounded-full transform rotate-1 hover:rotate-0 transition-transform duration-300 border-4 border-pink-300">
             <p className="text-gray-800 mb-2 font-bold">
@@ -178,6 +177,7 @@ const Contact = () => {
         </div>
       </div>
     </section>
+
   );
 };
 
