@@ -31,7 +31,8 @@ const Projects = () => {
     {
       title: "Airlines Flight Management",
       description: "Analytics for flight management and booking 📊",
-      link: 'https://github.com/originalvondo/Airlines',
+      projectLink: 'https://github.com/originalvondo/Airlines',
+      liveLink: '#',
       tech: ["Python", "Django", "SASS", "MySQL"],
       image: airlinesImage,
       icon: Heart,
@@ -41,7 +42,8 @@ const Projects = () => {
     {
       title: "LemonEngine",
       description: "Real-time C++ graphics engine built with OpenGL and Win32 ⚡",
-      link: 'http://github.com/originalvondo/LemonEngine',
+      projectLink: 'http://github.com/originalvondo/LemonEngine',
+      liveLink: '#',
       tech: ["C++", "Opengl", "GLM", "Win32"],
       image: lemonEngineImage,
       icon: Globe,
