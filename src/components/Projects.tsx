@@ -10,7 +10,8 @@ const Projects = () => {
     {
       title: "Speed-O-Meter",
       description: "A simple, lightweight C++ tool for benchmarking code in Chrome Tracing 🔧",
-      link: 'https://github.com/originalvondo/Speed-O-Meter',
+      projectLink: 'https://github.com/originalvondo/Speed-O-Meter',
+      liveLink: '#',
       tech: ["C++", "CMake", "JSON"],
       image: speedOmeterImage,
       icon: Smartphone,
