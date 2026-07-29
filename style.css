@@ -1011,7 +1011,7 @@ body {
 }
 
 .playlist-header {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   color: var(--text-color);
   margin-top: 30px !important;
 }
