@@ -1,15 +1,24 @@
 {
-  "arektarockband": [
-    "media/music/arektarockband/Eden.mp3"
+  "turnitup": [
+    "media/music/turnitup/MISS THE RAGE REVERSE.mp3",
+    "media/music/turnitup/Suffocation.mp3",
+    "media/music/turnitup/Wish.mp3"
+  ],
+  "arektarockband": ["media/music/arektarockband/Eden.mp3"],
+  "U Weren't Here I Really Miss You": [
+    "media/music/uwerenthereireallymissyou/U Weren't Here I Really Miss You.mp3"
   ],
   "bringbackthe17": [
     "media/music/bringbackthe17/Friends.mp3",
-    "media/music/bringbackthe17/Company.mp3"
+    "media/music/bringbackthe17/Company.mp3",
+    "media/music/bringbackthe17/Let me love you.mp3"
   ],
-  "jjk": [
-    "media/music/jjk/more than words.mp3"
+  "hooper": [
+    "media/music/hooper/Another Night!.mp3",
+    "media/music/hooper/Softcore.mp3",
+    "media/music/hooper/Strangers.mp3",
+    "media/music/hooper/Heaven sent.mp3",
+    "media/music/hooper/want u.mp3"
   ],
-  "showmelove": [
-    "media/music/showmelove.mp3"
-  ]
+  "jjk": ["media/music/jjk/more than words.mp3"]
 }
