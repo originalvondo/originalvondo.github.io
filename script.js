@@ -473,6 +473,9 @@ function updatePlayPauseBtn() {
 audio.addEventListener('play', updatePlayPauseBtn);
 audio.addEventListener('pause', updatePlayPauseBtn);
 
+audio.addEventListener('timeupdate', onTimeUpdate);
+audio.addEventListener('ended', onTrackEnded);
+
 // -------------------------------------------------------------------------
 // 10️⃣  BOOTSTRAP
 // -------------------------------------------------------------------------
