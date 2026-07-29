@@ -1,0 +1,46 @@
+<section id="music" class="section">
+  <header class="section-header">
+    <h1 class="serif-title">Music</h1>
+    <p class="section-sub mono-text">personal soundtrack / embedded metadata</p>
+  </header>
+
+  <div id="music-player" class="music-player">
+    <!-- Large cover art -->
+    <div class="player-artwork" aria-hidden="true">
+      <img id="player-cover" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'/%3E" alt="Cover art">
+    </div>
+
+    <div class="player-info">
+      <h2 id="player-title" class="serif-title" style="font-size:2rem;">—</h2>
+      <p id="player-artist" class="mono-text" style="color:var(--accent-gray);">—</p>
+    </div>
+
+    <div class="player-controls">
+      <button id="btn-prev" class="ctrl-btn" aria-label="Previous" title="Previous">⏮</button>
+      <button id="btn-play" class="ctrl-btn ctrl-btn--main" aria-label="Play" title="Play">▶</button>
+      <button id="btn-pause" class="ctrl-btn ctrl-btn--main hidden" aria-label="Pause" title="Pause">⏸</button>
+      <button id="btn-next" class="ctrl-btn" aria-label="Next" title="Next">⏭</button>
+    </div>
+
+    <div class="player-progress">
+      <span id="cur-time" class="mono-text">0:00</span>
+      <input id="seek-bar" type="range" min="0" max="100" value="0" aria-label="Seek">
+      <span id="dur-time" class="mono-text">0:00</span>
+    </div>
+
+    <div class="player-volume">
+      <label for="vol-bar" class="mono-text" style="margin-right:.5rem;">🔊</label>
+      <input id="vol-bar" type="range" min="0" max="1" step="0.01" value="0.8" aria-label="Volume">
+    </div>
+  </div>
+
+<div id="playlist-container" class="playlist-container">
+</div>
+
+  <footer class="section-footer">
+    <div class="footer-left">
+      <p>drop <code>.mp3</code> files into <code>/media/music/</code> – cover, title &amp; artist are read from the ID3 tags.</p>
+    </div>
+    <div class="footer-right mono-text">vondo // original</div>
+  </footer>
+</section>
