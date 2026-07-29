@@ -284,7 +284,6 @@ async function renderPlaylistSection(name, files) {
     // We use download_url to get the raw file for jsmediatags
     const track = await readID3(file.download_url); 
     if (track) {
-
       playlist.push(track);
 
       const li = document.createElement('li');
@@ -385,6 +384,40 @@ function loadTrackByObject(track) {
   audio.addEventListener('loadedmetadata', onMeta);
   audio.play().catch(()=>{});
   updatePlayPauseBtn();
+}
+
+function loadTrack(index, autoplay = false) {
+
+    if (!playlist.length) {
+        console.warn("Playlist is empty");
+        return;
+    }
+
+    if (index < 0 || index >= playlist.length) {
+        console.warn("Invalid track index:", index);
+        return;
+    }
+
+    currentTrackIndex = index;
+
+    const track = playlist[index];
+
+    loadTrackByObject(track);
+
+    // update active playlist item
+    document.querySelectorAll('.playlist li')
+        .forEach((el, i) => {
+            el.classList.toggle(
+                'active',
+                i === index
+            );
+        });
+
+    if (autoplay) {
+        audio.play().catch(err => {
+            console.log("Autoplay blocked:", err);
+        });
+    }
 }
 
 // -------------------------------------------------------------------------
