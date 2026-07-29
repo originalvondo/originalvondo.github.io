@@ -38,6 +38,15 @@ function fmtTime(sec) {
   return `${m}:${s}`;
 }
 
+function escapeHTML(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 // -------------------------------------------------------------------------
 // SPA ROUTER – loads a fragment from /sections/<name>.html
 // -------------------------------------------------------------------------
@@ -209,55 +218,42 @@ function createProjectCard(repo) {
 // -------------------------------------------------------------------------
 async function initMusic() {
   const container = $('#playlist-container');
-  container.innerHTML = '<div class="mono-text" style="text-align:center; grid-column:1/-1;">Scanning music library...</div>';
+  container.innerHTML = '<div class="mono-text" style="text-align:center; grid-column:1/-1;">Loading music library...</div>';
 
-  // Check if we are running locally (localhost or 127.0.0.1)
   const isLocal = window.location.hostname === 'localhost' || 
                   window.location.hostname === '127.0.0.1' || 
                   window.location.hostname === '';
 
+  // Path to the json file you just created
+  const manifestPath = 'media/music/music.json';
+  
+  // Use raw.githubusercontent for production to avoid API rate limits
+  const manifestUrl = isLocal 
+    ? manifestPath 
+    : `https://raw.githubusercontent.com/${CONFIG.repoOwner}/${CONFIG.repoName}/main/${manifestPath}`;
+
   try {
-    if (isLocal) {
-      console.log("🛠 Dev Mode: Using local music config");
-      container.innerHTML = ''; // Clear loading
+    const response = await fetch(manifestUrl);
+    if (!response.ok) throw new Error('Could not load music manifest (music.json).');
+    
+    const musicData = await response.json();
+    container.innerHTML = ''; // Clear loading text
+
+    // musicData looks like: { "Playlist Name": ["path/to/song.mp3"], ... }
+    for (const [playlistName, songs] of Object.entries(musicData)) {
       
-      // Use the devMusic object from CONFIG
-      for (const [playlistName, songs] of Object.entries(CONFIG.devMusic)) {
-        // Map the paths to a fake "file" object that looks like the GitHub API response
-        const fakeFiles = songs.map(path => ({
+      // Convert the array of paths into the object format your renderPlaylistSection expects
+      const files = songs.map(path => {
+        return {
           name: path.split('/').pop(),
-          download_url: path // In local, the path is the URL
-        }));
-        
-        await renderPlaylistSection(playlistName, fakeFiles);
-      }
-    } else {
-      console.log("🚀 Prod Mode: Using GitHub API");
-      
-      const musicFolderPath = `media/music`;
-      const apiUrl = `https://api.github.com/repos/${CONFIG.repoOwner}/${CONFIG.repoName}/contents/${musicFolderPath}`;
-      
-      const response = await fetch(apiUrl);
-      if (!response.ok) throw new Error('Could not access music folder via GitHub API.');
-      const items = await response.json();
+          // Construct the full URL to the raw mp3 file
+          download_url: isLocal 
+            ? path 
+            : `https://raw.githubusercontent.com/${CONFIG.repoOwner}/${CONFIG.repoName}/main/${path}`
+        };
+      });
 
-      const playlists = items.filter(item => item.type === 'dir');
-      if (playlists.length === 0) {
-        container.innerHTML = `<p class="mono-text" style="text-align:center;">No playlist folders found in ${musicFolderPath}</p>`;
-        return;
-      }
-
-      container.innerHTML = ''; 
-      for (const folder of playlists) {
-        const folderUrl = `https://api.github.com/repos/${CONFIG.repoOwner}/${CONFIG.repoName}/contents/${folder.path}`;
-        const folderResponse = await fetch(folderUrl);
-        const files = await folderResponse.json();
-        const mp3Files = files.filter(file => file.name.toLowerCase().endsWith('.mp3'));
-
-        if (mp3Files.length > 0) {
-          await renderPlaylistSection(folder.name, mp3Files);
-        }
-      }
+      await renderPlaylistSection(playlistName, files);
     }
 
     bindPlayerControls();
@@ -266,6 +262,7 @@ async function initMusic() {
     container.innerHTML = `<p class="mono-text" style="color:red; text-align:center;">Error loading music: ${e.message}</p>`;
   }
 }
+
 
 
 async function renderPlaylistSection(name, files) {
@@ -287,6 +284,9 @@ async function renderPlaylistSection(name, files) {
     // We use download_url to get the raw file for jsmediatags
     const track = await readID3(file.download_url); 
     if (track) {
+
+      playlist.push(track);
+
       const li = document.createElement('li');
       li.className = 'track-item';
       li.innerHTML = `
@@ -299,6 +299,8 @@ async function renderPlaylistSection(name, files) {
       `;
       
       li.addEventListener('click', () => {
+            currentTrackIndex = playlist.indexOf(track);
+
         loadTrackByObject(track);
         document.querySelectorAll('.playlist li').forEach(el => el.classList.remove('active'));
         li.classList.add('active');
@@ -313,40 +315,55 @@ async function renderPlaylistSection(name, files) {
 function readID3(url) {
   return new Promise(async resolve => {
     try {
-      // DEBUG: First, check if the file actually exists before trying to read tags
-      const check = await fetch(url, { method: 'HEAD' });
+
+      // Convert relative paths to absolute URLs
+      const absoluteURL = new URL(url, window.location.href).href;
+
+      const check = await fetch(absoluteURL, { method: 'HEAD' });
+
       if (!check.ok) {
-        console.error(`❌ File Not Found (404): ${url}`);
-        resolve(null); // Skip this file
+        console.error(`❌ File Not Found: ${absoluteURL}`);
+        resolve(null);
         return;
       }
 
-      window.jsmediatags.read(url, {
+      window.jsmediatags.read(absoluteURL, {
         onSuccess: tag => {
           const { title, artist, picture } = tag.tags || {};
-          const blob = picture ? new Blob([new Uint8Array(picture.data)], { type: picture.format }) : null;
-          const coverURL = blob ? URL.createObjectURL(blob) : 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"/%3E';
-          
+
+          const blob = picture
+            ? new Blob(
+                [new Uint8Array(picture.data)],
+                { type: picture.format }
+              )
+            : null;
+
+          const coverURL = blob
+            ? URL.createObjectURL(blob)
+            : 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"/%3E';
+
           resolve({
-            file: url, 
-            title: title || url.split('/').pop().replace(/\.mp3$/i, ''), 
-            artist: artist || 'Unknown', 
-            cover: coverURL 
+            file: absoluteURL,
+            title: title || url.split('/').pop().replace(/\.mp3$/i, ''),
+            artist: artist || 'Unknown',
+            cover: coverURL
           });
         },
+
         onError: err => {
-          console.warn(`⚠️ Tag read error for ${url}:`, err);
-          // Even if tags fail, we can still play the song using the filename
+          console.warn("Tag read failed:", err);
+
           resolve({
-            file: url,
+            file: absoluteURL,
             title: url.split('/').pop().replace(/\.mp3$/i, ''),
             artist: 'Unknown Artist',
             cover: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"/%3E'
           });
         }
       });
-    } catch (e) {
-      console.error(`❌ Connection error for ${url}:`, e);
+
+    } catch(e) {
+      console.error("Connection error:", e);
       resolve(null);
     }
   });

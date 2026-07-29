@@ -127,7 +127,7 @@ body {
 
 /* --- Page Sections --- */
 .section {
-    display: none; /* Controlled via JavaScript active class */
+    display: block; /* Controlled via JavaScript active class */
     animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
@@ -965,7 +965,7 @@ body {
 }
 
 
-.playlist-container {
+#playlist-container {
     display: flex;
     flex-direction: column;
     gap: 1rem;
