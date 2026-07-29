@@ -280,7 +280,7 @@ async function initMusic() {
           // Construct the full URL to the raw mp3 file
           download_url: isLocal
             ? path
-            : `https://raw.githubusercontent.com/${CONFIG.repoOwner}/${CONFIG.repoName}/main/${path}`,
+            : `https://${CONFIG.githubUsername}.github.io/${path}`,
         };
       });
 
