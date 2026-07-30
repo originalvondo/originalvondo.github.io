@@ -245,6 +245,9 @@ function createProjectCard(repo) {
 // -------------------------------------------------------------------------
 // MUSIC PLAYER – Dynamic GitHub Folder Fetching
 // -------------------------------------------------------------------------
+// -------------------------------------------------------------------------
+// MUSIC PLAYER – Optimized: Play First, Stream Rest
+// -------------------------------------------------------------------------
 async function initMusic() {
   const container = $("#playlist-container");
   container.innerHTML =
@@ -255,112 +258,190 @@ async function initMusic() {
     window.location.hostname === "127.0.0.1" ||
     window.location.hostname === "";
 
-  // Path to the json file you just created
   const manifestPath = "media/music/music.json";
-
-  // Use raw.githubusercontent for production to avoid API rate limits
   const manifestUrl = isLocal
     ? manifestPath
     : `https://raw.githubusercontent.com/${CONFIG.repoOwner}/${CONFIG.repoName}/main/${manifestPath}`;
 
   try {
     const response = await fetch(manifestUrl);
-    if (!response.ok)
-      throw new Error("Could not load music manifest (music.json).");
-
+    if (!response.ok) throw new Error("Could not load music manifest (music.json).");
     const musicData = await response.json();
-    container.innerHTML = ""; // Clear loading text
 
-    // musicData looks like: { "Playlist Name": ["path/to/song.mp3"], ... }
+    // 1. Flatten all playlists into a single ordered queue: [{ playlistName, fileInfo }, ...]
+    const allTracksQueue = [];
     for (const [playlistName, songs] of Object.entries(musicData)) {
-      // Convert the array of paths into the object format your renderPlaylistSection expects
-      const files = songs.map((path) => {
-        return {
-          name: path.split("/").pop(),
-          // Construct the full URL to the raw mp3 file
-          download_url: isLocal
-            ? path
-            : `https://${CONFIG.githubUsername}.github.io/${path}`,
-        };
+      songs.forEach((path) => {
+        allTracksQueue.push({
+          playlistName,
+          fileInfo: {
+            name: path.split("/").pop(),
+            download_url: isLocal
+              ? path
+              : `https://${CONFIG.githubUsername}.github.io/${path}`,
+          },
+        });
       });
-
-      await renderPlaylistSection(playlistName, files);
     }
 
-    if (playlist.length > 0) {
-      loadTrack(0, false);
+    if (allTracksQueue.length === 0) {
+      container.innerHTML = `<p class="mono-text" style="text-align:center; grid-column:1/-1;">No tracks found in manifest.</p>`;
+      return;
     }
 
-    bindPlayerControls();
+    container.innerHTML = ""; // Clear loading text
+    playlist = []; // Reset global playlist array
+    currentTrackIndex = -1;
+
+    // 2. Process the VERY FIRST track immediately (High Priority)
+    const firstItem = allTracksQueue.shift(); // Remove first from queue
+    await processAndRenderTrack(firstItem, 0); // Index 0 in playlist
+
+    // Start playback immediately
+    loadTrack(0, true);
+
+    // 3. Process the REST in background batches (Low Priority)
+    if (allTracksQueue.length > 0) {
+      scheduleBackgroundProcessing(allTracksQueue);
+    }
+
+    bindPlayerControls(); // Ensure controls are bound (safe to call multiple times)
   } catch (e) {
     console.error(e);
     container.innerHTML = `<p class="mono-text" style="color:red; text-align:center;">Error loading music: ${e.message}</p>`;
   }
 }
 
-async function renderPlaylistSection(name, files) {
-  const container = $("#playlist-container");
+/**
+ * Reads ID3, creates DOM node, pushes to global playlist array.
+ * @returns {Promise<object|null>} The track object if successful.
+ */
+async function processAndRenderTrack(item, targetIndex) {
+  const track = await readID3(item.fileInfo.download_url);
+  if (!track) return null;
 
-  // Create Playlist Header
-  const header = document.createElement("h3");
-  header.className = "playlist-header serif-title";
-  header.style.cssText =
-    "font-size: 1.5rem; margin: 2rem 0 1rem 0; border-bottom: 1px solid var(--accent-blue); display: inline-block; text-transform: lowercase;";
-  header.textContent = name;
-  container.appendChild(header);
+  // Attach playlist metadata for UI grouping
+  track.playlistName = item.playlistName;
 
-  // Create List
-  const ul = document.createElement("ul");
-  ul.className = "playlist";
+  // Insert into global playlist array at correct index
+  playlist.splice(targetIndex, 0, track);
 
-  // Process each file to get ID3 tags
-  for (const file of files) {
-    // We use download_url to get the raw file for jsmediatags
-    const track = await readID3(file.download_url);
-    if (track) {
-      playlist.push(track);
+  // Render UI
+  await renderTrackInDOM(track, targetIndex, item.playlistName);
 
-      const li = document.createElement("li");
-      li.className = "track-item";
-      li.innerHTML = `
-        <img class="track-art" src="${track.cover}" alt="">
-        <div class="track-info">
-          <div class="track-title">${escapeHTML(track.title)}</div>
-          <div class="track-artist">${escapeHTML(track.artist)}</div>
-        </div>
-        <span class="track-duration mono-text">--:--</span>
-      `;
-
-      li.addEventListener("click", () => {
-        currentTrackIndex = playlist.indexOf(track);
-
-        loadTrackByObject(track);
-        document
-          .querySelectorAll(".playlist li")
-          .forEach((el) => el.classList.remove("active"));
-        li.classList.add("active");
-      });
-
-      ul.appendChild(li);
-    }
-  }
-  container.appendChild(ul);
+  return track;
 }
 
+/**
+ * Renders a single track <li> into the correct playlist <ul> in the DOM.
+ */
+function renderTrackInDOM(track, index, playlistName) {
+  const container = $("#playlist-container");
+
+  // 1. Find or Create the Playlist Section (Header + UL)
+  let header = container.querySelector(`.playlist-header[data-name="${escapeHTML(playlistName)}"]`);
+  let ul;
+
+  if (!header) {
+    // Create Header
+    header = document.createElement("h3");
+    header.className = "playlist-header serif-title";
+    header.dataset.name = escapeHTML(playlistName); // For lookup
+    header.style.cssText =
+      "font-size: 1.5rem; margin: 2rem 0 1rem 0; border-bottom: 1px solid var(--accent-blue); display: inline-block; text-transform: lowercase;";
+    header.textContent = playlistName;
+    container.appendChild(header);
+
+    // Create List
+    ul = document.createElement("ul");
+    ul.className = "playlist";
+    ul.dataset.playlistName = escapeHTML(playlistName);
+    container.appendChild(ul);
+  } else {
+    ul = header.nextElementSibling;
+  }
+
+  // 2. Create List Item
+  const li = document.createElement("li");
+  li.className = "track-item";
+  li.dataset.playlistIndex = index; // Global playlist index for click handling
+  li.innerHTML = `
+    <img class="track-art" src="${track.cover}" alt="">
+    <div class="track-info">
+      <div class="track-title">${escapeHTML(track.title)}</div>
+      <div class="track-artist">${escapeHTML(track.artist)}</div>
+    </div>
+    <span class="track-duration mono-text">${fmtTime(track.duration || 0)}</span>
+  `;
+
+  li.addEventListener("click", () => {
+    const idx = parseInt(li.dataset.playlistIndex, 10);
+    if (!isNaN(idx)) {
+      loadTrack(idx, true);
+      document.querySelectorAll(".playlist li").forEach((el) => el.classList.remove("active"));
+      li.classList.add("active");
+    }
+  });
+
+  // 3. Append to correct UL
+  // Since we process in order, simple append works. If we processed out of order, we'd need insertBefore.
+  ul.appendChild(li);
+
+  // Update duration text if metadata loaded later (readID3 doesn't return duration reliably without loading audio)
+  // We can fetch duration via audio element briefly if needed, but --:-- is fine initially.
+}
+
+/**
+ * Processes remaining tracks in chunks during browser idle time.
+ */
+function scheduleBackgroundProcessing(queue) {
+  const BATCH_SIZE = 3; // Process 3 tracks per idle callback
+  let currentIndex = playlist.length; // Next index to insert at
+
+  const workLoop = (deadline) => {
+    while ((deadline.timeRemaining() > 0 || deadline.didTimeout) && queue.length > 0) {
+      const item = queue.shift();
+      // processAndRenderTrack is async, but we don't await it here to keep the loop synchronous-ish
+      // We pass the index so it inserts into the correct spot in the array.
+      processAndRenderTrack(item, currentIndex);
+      currentIndex++;
+    }
+
+    if (queue.length > 0) {
+      // Schedule next batch
+      if (window.requestIdleCallback) {
+        requestIdleCallback(workLoop, { timeout: 5000 });
+      } else {
+        setTimeout(() => workLoop({ timeRemaining: () => Infinity, didTimeout: true }), 50);
+      }
+    }
+  };
+
+  // Kick off
+  if (window.requestIdleCallback) {
+    requestIdleCallback(workLoop, { timeout: 5000 });
+  } else {
+    setTimeout(() => workLoop({ timeRemaining: () => Infinity, didTimeout: true }), 50);
+  }
+}
+
+// -------------------------------------------------------------------------
+// ID3 READER (Optimized: Returns duration via quick Audio probe)
+// -------------------------------------------------------------------------
 function readID3(url) {
   return new Promise(async (resolve) => {
     try {
-      // Convert relative paths to absolute URLs
       const absoluteURL = new URL(url, window.location.href).href;
 
-      const check = await fetch(absoluteURL, { method: "HEAD" });
-
+      // 1. Quick HEAD check (keep this to avoid jsmediatags hanging on 404s)
+      const check = await fetch(absoluteURL, { method: "HEAD" }).catch(() => ({ ok: false }));
       if (!check.ok) {
         console.error(`❌ File Not Found: ${absoluteURL}`);
         resolve(null);
         return;
       }
 
+      // 2. Read Tags
       window.jsmediatags.read(absoluteURL, {
         onSuccess: (tag) => {
           const { title, artist, picture } = tag.tags || {};
@@ -373,31 +454,38 @@ function readID3(url) {
             ? URL.createObjectURL(blob)
             : 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"/%3E';
 
-          resolve({
-            file: absoluteURL,
-            title:
-              title ||
-              url
-                .split("/")
-                .pop()
-                .replace(/\.mp3$/i, ""),
-            artist: artist || "Unknown",
-            cover: coverURL,
+          // 3. Probe Duration (Fast: browser reads only headers via Range request)
+          // We do this async so it doesn't block the ID3 success callback.
+          probeDuration(absoluteURL).then((duration) => {
+            resolve({
+              file: absoluteURL,
+              title:
+                title ||
+                url
+                  .split("/")
+                  .pop()
+                  .replace(/\.mp3$/i, ""),
+              artist: artist || "Unknown",
+              cover: coverURL,
+              duration: duration, // Seconds
+            });
           });
         },
 
         onError: (err) => {
           console.warn("Tag read failed:", err);
-
-          resolve({
-            file: absoluteURL,
-            title: url
-              .split("/")
-              .pop()
-              .replace(/\.mp3$/i, ""),
-            artist: "Unknown Artist",
-            cover:
-              'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"/%3E',
+          probeDuration(absoluteURL).then((duration) => {
+            resolve({
+              file: absoluteURL,
+              title: url
+                .split("/")
+                .pop()
+                .replace(/\.mp3$/i, ""),
+              artist: "Unknown Artist",
+              cover:
+                'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"/%3E',
+              duration: duration,
+            });
           });
         },
       });
@@ -407,6 +495,41 @@ function readID3(url) {
     }
   });
 }
+
+/**
+ * Fetches only the first few bytes (via Range header) to determine duration.
+ * Much faster than loading the whole file.
+ */
+function probeDuration(url) {
+  return new Promise((resolve) => {
+    const audio = new Audio();
+    audio.preload = "metadata";
+    // Request only first 256KB (usually enough for MP3 headers + ID3)
+    // Note: Server must support Range requests (GitHub Pages / Raw.githubusercontent does).
+    audio.src = url;
+
+    const cleanup = () => {
+      audio.removeEventListener("loadedmetadata", onMeta);
+      audio.removeEventListener("error", onErr);
+      audio.src = "";
+    };
+
+    const onMeta = () => {
+      cleanup();
+      resolve(audio.duration || 0);
+    };
+    const onErr = () => {
+      cleanup();
+      resolve(0);
+    };
+
+    audio.addEventListener("loadedmetadata", onMeta);
+    audio.addEventListener("error", onErr);
+    // Force load
+    audio.load();
+  });
+}
+
 
 function loadTrackByObject(track) {
   audio.src = track.file;
