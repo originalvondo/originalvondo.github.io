@@ -285,9 +285,31 @@ function createProjectCard(repo) {
  *    for all tracks, building the playlist array and DOM.
  */
 async function initMusic() {
-  if (playlist.length > 0) return; // Cache Guard: Data & DOM already hydrated
+  if (playlist.length > 0) return; // Cache Guard
 
-  const container = $("#playlist-container");
+  // 1. SAFELY GET CONTAINER (Wait one microtask for DOM insertion if needed)
+  let container = $("#playlist-container");
+  
+  if (!container) {
+    // Fallback: Wait for paint cycle (handles rare race conditions with innerHTML)
+    await new Promise(r => requestAnimationFrame(r));
+    container = $("#playlist-container");
+  }
+
+  // 2. HARD FAIL WITH CLEAR MESSAGE IF STILL MISSING
+  if (!container) {
+    const msg = `[Music] FATAL: #playlist-container not found in DOM. 
+    Check sections/music.html for <div id="playlist-container">. 
+    Current #content-area HTML: ${$("#content-area").innerHTML.slice(0, 200)}...`;
+    console.error(msg);
+    // Render error visibly in the page so you see it without console
+    $("#content-area").innerHTML = `<div style="color:red; padding:2rem; font-family:monospace;">
+      <b>Music Init Failed:</b> Missing <code>#playlist-container</code> in section HTML.
+      <br>Deploy the latest <code>sections/music.html</code> and hard refresh (Ctrl+Shift+R).
+    </div>`;
+    return;
+  }
+
   container.innerHTML = '<div class="mono-text" style="text-align:center; grid-column:1/-1;">Loading library...</div>';
 
   const isLocal = ["localhost", "127.0.0.1", ""].includes(window.location.hostname);
@@ -297,7 +319,6 @@ async function initMusic() {
   try {
     const musicData = await (await fetch(manifestUrl)).json();
 
-    // Flatten manifest into a structured queue preserving order
     const allTracksQueue = [];
     for (const [playlistName, songs] of Object.entries(musicData)) {
       songs.forEach((path) =>
@@ -318,18 +339,15 @@ async function initMusic() {
     playlist = [];
     currentTrackIndex = -1;
 
-    // 1. INSTANT PLAY: Stream first track immediately using native browser Range requests
     await loadTrackInstant(allTracksQueue[0], 0);
-
-    // 2. BACKGROUND HYDRATION: Process metadata/durations for ALL tracks sequentially
     scheduleBackgroundProcessing(allTracksQueue);
-
-    bindPlayerControls(); // Bind persistent player bar controls once
+    bindPlayerControls();
   } catch (e) {
     console.error(e);
     container.innerHTML = `<p class="mono-text" style="color:red;">Error: ${e.message}</p>`;
   }
 }
+
 
 /**
  * Starts playback of a track IMMEDIATELY without waiting for ID3 tags.
