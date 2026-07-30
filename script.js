@@ -210,33 +210,44 @@ function initGallery() {
   // DOM preserved by Section Cache. Runs once.
 }
 
+/* ==========================================================================
+   SECTION: ARCHIVE (GitHub Repos)
+   ========================================================================== */
 async function initArchive() {
-  // Guard against double-init if called manually (router caches DOM)
-  if ($("#github-projects-grid")?.children.length > 0) return;
+  // No guard needed: Section Cache ensures this runs only once (on first visit).
+  // If DOM has children (e.g. skeleton loaders from HTML), we clear them below.
 
   const loadingEl = $("#github-loading");
   const gridEl = $("#github-projects-grid");
+  
+  // Config check
   if (!CONFIG.githubUsername || CONFIG.githubUsername === "YOUR_GITHUB_USERNAME") {
     if (loadingEl) loadingEl.style.display = "none";
+    if (gridEl) gridEl.innerHTML = `<p class="mono-text">Set CONFIG.githubUsername to enable.</p>`;
     return;
   }
 
   try {
     const resp = await fetch(`https://api.github.com/users/${CONFIG.githubUsername}/repos?sort=updated&per_page=15`);
-    if (!resp.ok) throw new Error(resp.status);
+    if (!resp.ok) throw new Error(`GitHub API: ${resp.status} ${resp.statusText}`);
+    
     let repos = await resp.json();
     if (CONFIG.excludeForks) repos = repos.filter((r) => !r.fork);
     repos = repos.slice(0, CONFIG.maxRepos);
 
+    // Clear loading state & grid (handles placeholders from HTML template)
     if (loadingEl) loadingEl.style.display = "none";
-    if (gridEl) gridEl.innerHTML = "";
+    if (gridEl) gridEl.innerHTML = ""; 
+    
     repos.forEach((repo) => gridEl?.appendChild(createProjectCard(repo)));
   } catch (e) {
-    console.error(e);
+    console.error("Archive fetch failed:", e);
     if (loadingEl) {
       loadingEl.innerHTML = `⚠️ Offline / fallback mode.`;
       loadingEl.style.color = "#7a7a7a";
     }
+    // Optional: Render curated fallback items here if gridEl exists
+    if (gridEl) gridEl.innerHTML = `<p class="mono-text" style="color:#777;">Could not load repositories.</p>`;
   }
 }
 
