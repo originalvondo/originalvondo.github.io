@@ -1,12 +1,12 @@
+/* ==========================================================================
+   CONFIGURATION
+   ========================================================================== */
 const CONFIG = {
   githubUsername: "originalvondo",
   repoOwner: "originalvondo",
   repoName: "originalvondo.github.io",
   excludeForks: true,
   maxRepos: 15,
-
-  devMusic: {},
-
   languageTags: {
     javascript: "JS",
     typescript: "TS",
@@ -21,18 +21,23 @@ const CONFIG = {
   },
 };
 
-// -------------------------------------------------------------------------
-// GLOBAL STATE
-// -------------------------------------------------------------------------
-let currentSection = null; // name of the section currently in #content-area
-let audio = new Audio(); // single <audio> element for the player
-let playlist = []; // parsed track objects {file, title, artist, cover, duration}
-let currentTrackIndex = -1; // index in `playlist`
-let isSeeking = false; // flag while user drags the seek bar
+/* ==========================================================================
+   GLOBAL STATE
+   ========================================================================== */
+let currentSection = null;
+const audio = new Audio(); // Single global audio element
+let playlist = []; // Parsed track objects
+let currentTrackIndex = -1;
+let isSeeking = false;
 
-// -------------------------------------------------------------------------
-// UTILITIES
-// -------------------------------------------------------------------------
+// Caching & Cleanup
+const sectionCache = new Map(); // name -> { nodes, scrollY, initialized }
+let playerControlsBound = false; // Prevent duplicate listener binding
+const blobUrlsToRevoke = new Set(); // Track blob URLs for memory cleanup
+
+/* ==========================================================================
+   UTILITIES
+   ========================================================================== */
 const $ = (sel, ctx = document) => ctx.querySelector(sel);
 const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
 
@@ -54,77 +59,119 @@ function escapeHTML(str) {
     .replace(/'/g, "&#039;");
 }
 
-// -------------------------------------------------------------------------
-// SPA ROUTER – loads a fragment from /sections/<name>.html
-// -------------------------------------------------------------------------
+/* ==========================================================================
+   CORE: PAGE VISIBILITY & CLEANUP
+   ========================================================================== */
+function initGlobalVisibility() {
+  // Pause when tab hidden / switched away
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden && !audio.paused) audio.pause();
+  });
+
+  // Hard cleanup on page unload/close
+  window.addEventListener("pagehide", () => {
+    audio.pause();
+    audio.src = "";
+    blobUrlsToRevoke.forEach((url) => URL.revokeObjectURL(url));
+    blobUrlsToRevoke.clear();
+  });
+}
+
+/* ==========================================================================
+   CORE: SPA ROUTER WITH DOM CACHING
+   ========================================================================== */
 async function loadSection(name) {
   const container = $("#content-area");
+
+  // 1. SAVE CURRENT SECTION TO CACHE
+  if (currentSection && currentSection !== name) {
+    const cache = sectionCache.get(currentSection) || {};
+    cache.nodes = Array.from(container.childNodes);
+    cache.scrollY = window.scrollY;
+    cache.initialized = true;
+    sectionCache.set(currentSection, cache);
+  }
+
+  // 2. RESTORE FROM CACHE OR FETCH
+  const cached = sectionCache.get(name);
+
+  if (cached?.initialized) {
+    // CACHE HIT: Instant restore
+    container.replaceChildren(...cached.nodes);
+    window.scrollTo({ top: cached.scrollY || 0, behavior: "instant" });
+    currentSection = name;
+    runShowHooks(name);
+    return;
+  }
+
+  // CACHE MISS: Fetch HTML
   container.innerHTML = `<div class="route-loading mono-text">loading ${name}…</div>`;
 
   try {
     const resp = await fetch(`sections/${name}.html`);
     if (!resp.ok) throw new Error(resp.statusText);
-    const html = await resp.text();
-    container.innerHTML = html;
+    container.innerHTML = await resp.text();
     currentSection = name;
 
-    // Run section‑specific init code
-    switch (name) {
-      case "home":
-        initHome();
-        break;
-      case "about":
-        initGallery();
-        break;
-      case "archive":
-        initArchive();
-        break;
-      case "music":
-        initMusic();
-        break;
-    }
+    await runInitHooks(name); // Run async init logic
 
-    // Highlight nav
-    $$(".nav-item").forEach((el) =>
-      el.classList.toggle("active", el.dataset.target === name),
-    );
-    // Scroll to top smoothly
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    // Mark initialized for next visit
+    if (!sectionCache.has(name)) sectionCache.set(name, {});
+    sectionCache.get(name).initialized = true;
+
+    runShowHooks(name);
   } catch (e) {
     console.error("Section load failed", e);
     container.innerHTML = `<p class="mono-text" style="color:#b00;">Failed to load “${name}”.</p>`;
   }
 }
 
-// -------------------------------------------------------------------------
-// NAVIGATION SETUP
-// -------------------------------------------------------------------------
+async function runInitHooks(name) {
+  switch (name) {
+    case "home":
+      initHome();
+      break;
+    case "about":
+      initGallery();
+      break;
+    case "archive":
+      await initArchive();
+      break;
+    case "music":
+      await initMusic();
+      break;
+  }
+}
+
+function runShowHooks(name) {
+  // Nav Highlight
+  $$(".nav-item").forEach((el) =>
+    el.classList.toggle("active", el.dataset.target === name),
+  );
+  // Section Specific
+  if (name === "music") syncPlayerUIOnShow();
+}
+
+/* ==========================================================================
+   COMPONENT: NAVIGATION
+   ========================================================================== */
 function initNavigation() {
   $$(".nav-item").forEach((link) => {
     link.addEventListener("click", (e) => {
       e.preventDefault();
-      const target = link.dataset.target;
-      location.hash = target; // triggers hashchange → router
+      location.hash = link.dataset.target;
     });
   });
-
-  window.addEventListener("hashchange", () => {
-    const hash = location.hash.slice(1) || "home";
-    loadSection(hash);
-  });
-
-  // Initial load (respect existing hash or default to home)
-  const initial = location.hash.slice(1) || "home";
-  loadSection(initial);
+  window.addEventListener("hashchange", () =>
+    loadSection(location.hash.slice(1) || "home"),
+  );
+  loadSection(location.hash.slice(1) || "home"); // Initial load
 }
 
-// -------------------------------------------------------------------------
-// LIGHTBOX (re‑usable for any section that has .collage-item / .gallery-item)
-// -------------------------------------------------------------------------
-let lightbox = null,
-  lbImg = null,
-  lbCap = null,
-  lbClose = null;
+/* ==========================================================================
+   COMPONENT: LIGHTBOX (Delegated Globally)
+   ========================================================================== */
+let lightbox, lbImg, lbCap, lbClose;
 
 function initLightbox() {
   lightbox = $("#lightbox");
@@ -132,7 +179,6 @@ function initLightbox() {
   lbCap = $("#lightbox-caption");
   lbClose = $(".lightbox-close", lightbox);
 
-  // delegate – works for elements added later
   document.body.addEventListener("click", (e) => {
     const item = e.target.closest(".collage-item, .gallery-item");
     if (!item) return;
@@ -163,26 +209,28 @@ function initLightbox() {
   });
 }
 
-// -------------------------------------------------------------------------
-// HOME SECTION – portrait + quote
-// -------------------------------------------------------------------------
+/* ==========================================================================
+   SECTION: HOME
+   ========================================================================== */
 function initHome() {
-  // Nothing dynamic – the HTML already contains the markup.
-  // Lightbox already works for any .collage-item (none on home).
+  /* Static HTML */
 }
 
-// -------------------------------------------------------------------------
-// ABOUT / GALLERY – simple masonry grid, lightbox ready
-// -------------------------------------------------------------------------
+/* ==========================================================================
+   SECTION: ABOUT / GALLERY
+   ========================================================================== */
 function initGallery() {
-  // The gallery HTML lives in sections/about.html
-  // Lightbox is already delegated globally – nothing else required.
+  // Lightbox delegated globally. Images cached by browser.
+  // DOM preserved by Section Cache. Runs once.
 }
 
-// -------------------------------------------------------------------------
-// ARCHIVE – GitHub repo fetching
-// -------------------------------------------------------------------------
+/* ==========================================================================
+   SECTION: ARCHIVE (GitHub Repos)
+   ========================================================================== */
 async function initArchive() {
+  // Guard: Router caches DOM, but safety check for manual calls
+  if ($("#github-projects-grid")?.children.length > 0) return;
+
   const loadingEl = $("#github-loading");
   const gridEl = $("#github-projects-grid");
   if (
@@ -190,9 +238,9 @@ async function initArchive() {
     CONFIG.githubUsername === "YOUR_GITHUB_USERNAME"
   ) {
     if (loadingEl) loadingEl.style.display = "none";
-    console.log("GitHub API: set CONFIG.githubUsername to enable live repos.");
     return;
   }
+
   try {
     const resp = await fetch(
       `https://api.github.com/users/${CONFIG.githubUsername}/repos?sort=updated&per_page=15`,
@@ -204,12 +252,11 @@ async function initArchive() {
 
     if (loadingEl) loadingEl.style.display = "none";
     if (gridEl) gridEl.innerHTML = "";
-
     repos.forEach((repo) => gridEl?.appendChild(createProjectCard(repo)));
   } catch (e) {
     console.error(e);
     if (loadingEl) {
-      loadingEl.innerHTML = `⚠️ Offline / fallback mode – showing curated items.`;
+      loadingEl.innerHTML = `⚠️ Offline / fallback mode.`;
       loadingEl.style.color = "#7a7a7a";
     }
   }
@@ -229,130 +276,248 @@ function createProjectCard(repo) {
       : "";
 
   card.innerHTML = `
-    <div class="project-card-header">
-      <span class="project-tag">${langTag}</span>
-      <span class="project-date">${year}</span>
-    </div>
+    <div class="project-card-header"><span class="project-tag">${langTag}</span><span class="project-date">${year}</span></div>
     <h3 class="project-title">${repo.name}</h3>
     <p class="project-desc">${desc}</p>
-    <div class="project-links">
-      <a href="${repo.html_url}" target="_blank" class="project-link">Repo ↗</a>
-      ${demoLink}
-    </div>`;
+    <div class="project-links"><a href="${repo.html_url}" target="_blank" class="project-link">Repo ↗</a>${demoLink}</div>`;
   return card;
 }
 
-// -------------------------------------------------------------------------
-// MUSIC PLAYER – Dynamic GitHub Folder Fetching
-// -------------------------------------------------------------------------
-// -------------------------------------------------------------------------
-// MUSIC PLAYER – Optimized: Play First, Stream Rest
-// -------------------------------------------------------------------------
+/* ==========================================================================
+   SECTION: MUSIC PLAYER
+   ========================================================================== */
+
+// --- Main Entry: Fetch Manifest -> Play First Track IMMEDIATELY
 async function initMusic() {
+  if (playlist.length > 0) return; // Cache Guard
+
   const container = $("#playlist-container");
   container.innerHTML =
-    '<div class="mono-text" style="text-align:center; grid-column:1/-1;">Loading music library...</div>';
+    '<div class="mono-text" style="text-align:center; grid-column:1/-1;">Loading library...</div>';
 
-  const isLocal =
-    window.location.hostname === "localhost" ||
-    window.location.hostname === "127.0.0.1" ||
-    window.location.hostname === "";
-
-  const manifestPath = "media/music/music.json";
-  const manifestUrl = isLocal
-    ? manifestPath
-    : `https://raw.githubusercontent.com/${CONFIG.repoOwner}/${CONFIG.repoName}/main/${manifestPath}`;
+  const isLocal = ["localhost", "127.0.0.1", ""].includes(
+    window.location.hostname,
+  );
+  const baseUrl = isLocal ? "" : `https://${CONFIG.githubUsername}.github.io`;
+  const manifestUrl = `${baseUrl}/media/music/music.json`;
 
   try {
-    const response = await fetch(manifestUrl);
-    if (!response.ok) throw new Error("Could not load music manifest (music.json).");
-    const musicData = await response.json();
+    // 1. FETCH MANIFEST (Tiny, fast)
+    const musicData = await (await fetch(manifestUrl)).json();
 
-    // 1. Flatten all playlists into a single ordered queue: [{ playlistName, fileInfo }, ...]
+    // 2. BUILD QUEUE (Sync, fast)
     const allTracksQueue = [];
     for (const [playlistName, songs] of Object.entries(musicData)) {
-      songs.forEach((path) => {
+      songs.forEach((path) =>
         allTracksQueue.push({
           playlistName,
-          fileInfo: {
-            name: path.split("/").pop(),
-            download_url: isLocal
-              ? path
-              : `https://${CONFIG.githubUsername}.github.io/${path}`,
-          },
-        });
-      });
+          // Store raw path/url for instant access
+          url: isLocal ? path : `${baseUrl}/${path}`,
+          name: path.split("/").pop(),
+        }),
+      );
     }
 
-    if (allTracksQueue.length === 0) {
-      container.innerHTML = `<p class="mono-text" style="text-align:center; grid-column:1/-1;">No tracks found in manifest.</p>`;
+    if (!allTracksQueue.length) {
+      container.innerHTML = `<p class="mono-text">No tracks found.</p>`;
       return;
     }
 
-    container.innerHTML = ""; // Clear loading text
-    playlist = []; // Reset global playlist array
+    container.innerHTML = "";
+    playlist = [];
     currentTrackIndex = -1;
 
-    // 2. Process the VERY FIRST track immediately (High Priority)
-    const firstItem = allTracksQueue.shift(); // Remove first from queue
-    await processAndRenderTrack(firstItem, 0); // Index 0 in playlist
+    // 3. INSTANT PLAY FIRST TRACK (The "Spotify" Trick)
+    const firstItem = allTracksQueue[0]; // Peek, don't shift yet (keep order)
+    await loadTrackInstant(firstItem, 0); // PLAYS AUDIO IMMEDIATELY
 
-    // Start playback immediately
-    loadTrack(0, true);
+    // 4. BACKGROUND: Process Metadata for ALL tracks (including first) to build UI/Playlist
+    // We pass the *full* queue. processQueue will fill `playlist` array in order.
+    scheduleBackgroundProcessing(allTracksQueue);
 
-    // 3. Process the REST in background batches (Low Priority)
-    if (allTracksQueue.length > 0) {
-      scheduleBackgroundProcessing(allTracksQueue);
-    }
-
-    bindPlayerControls(); // Ensure controls are bound (safe to call multiple times)
+    bindPlayerControls();
   } catch (e) {
     console.error(e);
-    container.innerHTML = `<p class="mono-text" style="color:red; text-align:center;">Error loading music: ${e.message}</p>`;
+    container.innerHTML = `<p class="mono-text" style="color:red;">Error: ${e.message}</p>`;
   }
 }
 
-/**
- * Reads ID3, creates DOM node, pushes to global playlist array.
- * @returns {Promise<object|null>} The track object if successful.
- */
+// --- 3. INSTANT LOAD: Sets src & plays. NO METADATA WAIT. ---
+// Updates Player Bar with filename fallback. Returns Promise resolving when play starts.
+function loadTrackInstant(item, index) {
+  return new Promise((resolve) => {
+    currentTrackIndex = index;
+
+    // 1. Set Source & Play IMMEDIATELY
+    audio.src = item.url;
+    // audio.preload = "metadata"; // Default is "metadata" usually, "auto" might buffer more
+    audio.load();
+
+    // 2. Update Persistent Player Bar with Fallback Data (Filename)
+    const fallbackTitle = item.name.replace(/\.mp3$/i, "");
+    $("#player-title").textContent = fallbackTitle;
+    $("#player-artist").textContent = "Loading...";
+    $("#player-cover").src =
+      'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"/%3E';
+    $("#dur-time").textContent = "0:00";
+    $("#seek-bar").value = 0;
+
+    // 3. Handle Playback Start
+    const onPlay = () => {
+      audio.removeEventListener("play", onPlay);
+      audio.removeEventListener("error", onErr);
+      resolve(); // Signal: "Audio has started"
+    };
+    const onErr = () => {
+      audio.removeEventListener("play", onPlay);
+      audio.removeEventListener("error", onErr);
+      console.error("Instant play failed:", item.url);
+      resolve(); // Continue queue even if 1 fails
+    };
+
+    audio.addEventListener("play", onPlay, { once: true });
+    audio.addEventListener("error", onErr, { once: true });
+
+    // Trigger play (user gesture usually handled by nav click -> hashchange -> initMusic)
+    audio.play().catch(() => {
+      /* Autoplay blocked, user must click play btn */
+    });
+
+    // 4. Listen for Native Metadata (Duration) to update Player Bar & Playlist Item
+    // This fires fast (browser reads headers via Range request)
+    const onMeta = () => {
+      const dur = audio.duration;
+      $("#dur-time").textContent = fmtTime(dur);
+      // Update the playlist LI if it exists already (index 0 might render fast)
+      const li = document.querySelector(
+        `.track-item[data-playlist-index="${index}"]`,
+      );
+      if (li) li.querySelector(".track-duration").textContent = fmtTime(dur);
+      audio.removeEventListener("loadedmetadata", onMeta);
+    };
+    audio.addEventListener("loadedmetadata", onMeta, { once: true });
+  });
+}
+
+// --- 5. METADATA EXTRACTION: Heavy lifting (jsmediatags) happens HERE ---
+// Returns full track object { file, title, artist, cover, duration, playlistName }
+// --- 5. METADATA EXTRACTION: Tags + Background Duration Probe ---
 async function processAndRenderTrack(item, targetIndex) {
-  const track = await readID3(item.fileInfo.download_url);
-  if (!track) return null;
+  // 1. Get Tags (Title, Artist, Cover) - Fast, skips duration
+  const meta = await readID3Metadata(item.url); 
+  
+  const track = {
+    file: item.url,
+    title: meta.title || item.name.replace(/\.mp3$/i, ""),
+    artist: meta.artist || "Unknown Artist",
+    cover: meta.cover || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"/%3E',
+    duration: 0, // Placeholder
+    playlistName: item.playlistName
+  };
 
-  track.playlistName = item.playlistName;
-
-  // Use push if targetIndex === playlist.length (appending), else splice
-  // Since we process sequentially, targetIndex ALWAYS === playlist.length here.
-  playlist.push(track); // Safer & faster than splice for appending
-
+  // 2. Push to State & Render DOM Immediately (Shows "0:00" initially)
+  playlist.push(track);
   await renderTrackInDOM(track, targetIndex, item.playlistName);
 
-  return track; // Return track so the await in scheduleBackgroundProcessing works
+  // 3. BACKGROUND PROBE: Fetch Duration via Range Request (Non-blocking)
+  // We do this AFTER render so UI exists to update.
+  // Note: We don't 'await' this here if we want parallel probes, 
+  // but since scheduleBackgroundProcessing loops sequentially, 
+  // awaiting here ensures we don't open 50 connections at once.
+  try {
+    const duration = await probeDuration(item.url);
+    track.duration = duration;
+    // Update the specific LI in the DOM
+    const li = document.querySelector(`.track-item[data-playlist-index="${targetIndex}"]`);
+    if (li) li.querySelector(".track-duration").textContent = fmtTime(duration);
+  } catch (e) {
+    console.warn("Duration probe failed for", item.url, e);
+  }
+
+  return track;
+}
+
+// --- Fast Duration Probe (Range Request) ---
+// Creates a temporary Audio element, requests only headers (bytes=0-)
+// GitHub Pages / raw.githubusercontent.com support Range requests natively.
+function probeDuration(url) {
+  return new Promise((resolve, reject) => {
+    const probe = new Audio();
+    // preload="metadata" tells browser: "Just get headers (duration), don't download file"
+    probe.preload = "metadata"; 
+    probe.src = url;
+
+    const cleanup = () => {
+      probe.removeEventListener("loadedmetadata", onMeta);
+      probe.removeEventListener("error", onErr);
+      probe.src = ""; // Release network lock
+    };
+
+    const onMeta = () => {
+      cleanup();
+      resolve(probe.duration || 0);
+    };
+    const onErr = (e) => {
+      cleanup();
+      // Don't reject hard, just return 0 so UI doesn't break
+      resolve(0); 
+    };
+
+    probe.addEventListener("loadedmetadata", onMeta, { once: true });
+    probe.addEventListener("error", onErr, { once: true });
+    
+    // Trigger the header fetch
+    probe.load();
+  });
 }
 
 
-/**
- * Renders a single track <li> into the correct playlist <ul> in the DOM.
- */
+// --- 4. BACKGROUND PROCESSING: Sequential, Yielding, Builds Playlist Array & DOM ---
+function scheduleBackgroundProcessing(queue) {
+  (async () => {
+    for (let i = 0; i < queue.length; i++) {
+      const item = queue[i];
+      // processAndRenderTrack now returns the FULL track object with metadata
+      const track = await processAndRenderTrack(item, i);
+
+      // RECONCILIATION: If this is the currently playing track (index 0),
+      // update the Player Bar with REAL metadata (Title, Artist, Cover)
+      if (i === currentTrackIndex && track) {
+        $("#player-title").textContent = track.title;
+        $("#player-artist").textContent = track.artist;
+        $("#player-cover").src = track.cover;
+        // Duration already handled by native 'loadedmetadata' above, but good to sync
+        if (track.duration)
+          $("#dur-time").textContent = fmtTime(track.duration);
+      }
+
+      // Yield to main thread (keep UI responsive)
+      await new Promise((r) =>
+        window.requestIdleCallback
+          ? requestIdleCallback(r, { timeout: 1000 })
+          : setTimeout(r, 0),
+      );
+    }
+  })();
+}
+
+// --- Render Track into Playlist DOM ---
+// --- RENDER (Unchanged mostly, ensures data-index matches array index) ---
 function renderTrackInDOM(track, index, playlistName) {
   const container = $("#playlist-container");
-
-  // 1. Find or Create the Playlist Section (Header + UL)
-  let header = container.querySelector(`.playlist-header[data-name="${escapeHTML(playlistName)}"]`);
+  let header = container.querySelector(
+    `.playlist-header[data-name="${escapeHTML(playlistName)}"]`,
+  );
   let ul;
 
   if (!header) {
-    // Create Header
     header = document.createElement("h3");
     header.className = "playlist-header serif-title";
-    header.dataset.name = escapeHTML(playlistName); // For lookup
+    header.dataset.name = escapeHTML(playlistName);
     header.style.cssText =
-      "font-size: 1.5rem; margin: 2rem 0 1rem 0; border-bottom: 1px solid var(--accent-blue); display: inline-block; text-transform: lowercase;";
+      "font-size:1.5rem;margin:2rem 0 1rem;border-bottom:1px solid var(--accent-blue);display:inline-block;text-transform:lowercase;";
     header.textContent = playlistName;
     container.appendChild(header);
-
-    // Create List
     ul = document.createElement("ul");
     ul.className = "playlist";
     ul.dataset.playlistName = escapeHTML(playlistName);
@@ -361,10 +526,9 @@ function renderTrackInDOM(track, index, playlistName) {
     ul = header.nextElementSibling;
   }
 
-  // 2. Create List Item
   const li = document.createElement("li");
   li.className = "track-item";
-  li.dataset.playlistIndex = index; // Global playlist index for click handling
+  li.dataset.playlistIndex = index; // CRITICAL: Matches playlist array index
   li.innerHTML = `
     <img class="track-art" src="${track.cover}" alt="">
     <div class="track-info">
@@ -376,212 +540,176 @@ function renderTrackInDOM(track, index, playlistName) {
 
   li.addEventListener("click", () => {
     const idx = parseInt(li.dataset.playlistIndex, 10);
-    if (!isNaN(idx)) {
-      loadTrack(idx, true);
-      document.querySelectorAll(".playlist li").forEach((el) => el.classList.remove("active"));
-      li.classList.add("active");
-    }
+    if (!isNaN(idx)) loadTrack(idx, true); // Standard load for user clicks
   });
-
-  // 3. Append to correct UL
-  // Since we process in order, simple append works. If we processed out of order, we'd need insertBefore.
   ul.appendChild(li);
-
-  // Update duration text if metadata loaded later (readID3 doesn't return duration reliably without loading audio)
-  // We can fetch duration via audio element briefly if needed, but --:-- is fine initially.
 }
 
-/**
- * Processes remaining tracks ONE BY ONE in order, yielding to main thread between each.
- * This guarantees playlist array order == DOM order == Manifest order.
- */
-function scheduleBackgroundProcessing(queue) {
-  let currentIndex = playlist.length; // Starts at 1 (since index 0 is done)
-
-  // Use an async IIFE so we can use 'await' inside the loop
-  (async function processQueue() {
-    for (const item of queue) {
-      // 1. Process & Render THIS track fully (await ensures array/DOM order)
-      await processAndRenderTrack(item, currentIndex);
-      currentIndex++;
-
-      // 2. YIELD to browser: allows paint, interaction, other scripts to run
-      // requestIdleCallback is best; fallback to setTimeout(0) for Safari/older browsers
-      await new Promise(resolve => {
-        if (window.requestIdleCallback) {
-          requestIdleCallback(resolve, { timeout: 1000 });
-        } else {
-          setTimeout(resolve, 0);
-        }
-      });
-    }
-  })();
+// --- Sync Persistent Player Bar when Music Tab Shown ---
+function syncPlayerUIOnShow() {
+  if (currentTrackIndex === -1 || !playlist.length) return;
+  const track = playlist[currentTrackIndex];
+  $("#player-title").textContent = track.title;
+  $("#player-artist").textContent = track.artist;
+  $("#player-cover").src = track.cover;
+  $("#dur-time").textContent = fmtTime(audio.duration || track.duration || 0);
+  $("#cur-time").textContent = fmtTime(audio.currentTime);
+  $("#seek-bar").value = audio.duration
+    ? (audio.currentTime / audio.duration) * 100
+    : 0;
+  updatePlayPauseBtn();
 }
 
-
-// -------------------------------------------------------------------------
-// ID3 READER (Optimized: Returns duration via quick Audio probe)
-// -------------------------------------------------------------------------
+/* ==========================================================================
+   PLAYER CORE: ID3 & Duration Probing
+   ========================================================================== */
 function readID3(url) {
   return new Promise(async (resolve) => {
     try {
       const absoluteURL = new URL(url, window.location.href).href;
+      const check = await fetch(absoluteURL, { method: "HEAD" }).catch(() => ({
+        ok: false,
+      }));
+      if (!check.ok) return resolve(null);
 
-      // 1. Quick HEAD check (keep this to avoid jsmediatags hanging on 404s)
-      const check = await fetch(absoluteURL, { method: "HEAD" }).catch(() => ({ ok: false }));
-      if (!check.ok) {
-        console.error(`❌ File Not Found: ${absoluteURL}`);
-        resolve(null);
-        return;
-      }
-
-      // 2. Read Tags
       window.jsmediatags.read(absoluteURL, {
-        onSuccess: (tag) => {
-          const { title, artist, picture } = tag.tags || {};
-
-          const blob = picture
-            ? new Blob([new Uint8Array(picture.data)], { type: picture.format })
-            : null;
-
-          const coverURL = blob
-            ? URL.createObjectURL(blob)
-            : 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"/%3E';
-
-          // 3. Probe Duration (Fast: browser reads only headers via Range request)
-          // We do this async so it doesn't block the ID3 success callback.
-          probeDuration(absoluteURL).then((duration) => {
-            resolve({
-              file: absoluteURL,
-              title:
-                title ||
-                url
-                  .split("/")
-                  .pop()
-                  .replace(/\.mp3$/i, ""),
-              artist: artist || "Unknown",
-              cover: coverURL,
-              duration: duration, // Seconds
-            });
-          });
-        },
-
-        onError: (err) => {
-          console.warn("Tag read failed:", err);
-          probeDuration(absoluteURL).then((duration) => {
-            resolve({
-              file: absoluteURL,
-              title: url
-                .split("/")
-                .pop()
-                .replace(/\.mp3$/i, ""),
-              artist: "Unknown Artist",
-              cover:
-                'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"/%3E',
-              duration: duration,
-            });
-          });
-        },
+        onSuccess: (tag) => handleTagSuccess(tag, absoluteURL, url, resolve),
+        onError: () =>
+          probeDuration(absoluteURL).then((d) =>
+            resolve(fallbackTrack(absoluteURL, url, d)),
+          ),
       });
     } catch (e) {
-      console.error("Connection error:", e);
       resolve(null);
     }
   });
 }
 
-/**
- * Fetches only the first few bytes (via Range header) to determine duration.
- * Much faster than loading the whole file.
- */
-function probeDuration(url) {
-  return new Promise((resolve) => {
-    const audio = new Audio();
-    audio.preload = "metadata";
-    // Request only first 256KB (usually enough for MP3 headers + ID3)
-    // Note: Server must support Range requests (GitHub Pages / Raw.githubusercontent does).
-    audio.src = url;
+// --- 6. ID3 READER: Metadata Only (No Duration Probing) ---
+// Reads tags via jsmediatags. Uses HEAD check to avoid 404 hangs.
+function readID3Metadata(url) {
+  return new Promise(async (resolve) => {
+    try {
+      const absoluteURL = new URL(url, window.location.href).href;
+      // Quick HEAD check (prevents jsmediatags hanging on 404)
+      const check = await fetch(absoluteURL, {
+        method: "HEAD",
+        cache: "no-store",
+      }).catch(() => ({ ok: false }));
+      if (!check.ok) return resolve({});
 
-    const cleanup = () => {
-      audio.removeEventListener("loadedmetadata", onMeta);
-      audio.removeEventListener("error", onErr);
-      audio.src = "";
-    };
-
-    const onMeta = () => {
-      cleanup();
-      resolve(audio.duration || 0);
-    };
-    const onErr = () => {
-      cleanup();
-      resolve(0);
-    };
-
-    audio.addEventListener("loadedmetadata", onMeta);
-    audio.addEventListener("error", onErr);
-    // Force load
-    audio.load();
+      window.jsmediatags.read(absoluteURL, {
+        onSuccess: (tag) => {
+          const { title, artist, picture } = tag.tags || {};
+          let coverURL = null;
+          if (picture) {
+            const blob = new Blob([new Uint8Array(picture.data)], {
+              type: picture.format,
+            });
+            coverURL = URL.createObjectURL(blob);
+            blobUrlsToRevoke.add(coverURL);
+          }
+          // We IGNORE duration from tags (often wrong). Browser 'loadedmetadata' is source of truth.
+          resolve({ title, artist, cover: coverURL, duration: 0 });
+        },
+        onError: () => resolve({}), // Fail silently, fallback to filename
+      });
+    } catch (e) {
+      resolve({});
+    }
   });
 }
 
+function handleTagSuccess(tag, absoluteURL, originalUrl, resolve) {
+  const { title, artist, picture } = tag.tags || {};
+  let coverURL =
+    'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"/%3E';
+  if (picture) {
+    const blob = new Blob([new Uint8Array(picture.data)], {
+      type: picture.format,
+    });
+    coverURL = URL.createObjectURL(blob);
+    blobUrlsToRevoke.add(coverURL);
+  }
+  probeDuration(absoluteURL).then((duration) =>
+    resolve({
+      file: absoluteURL,
+      title:
+        title ||
+        originalUrl
+          .split("/")
+          .pop()
+          .replace(/\.mp3$/i, ""),
+      artist: artist || "Unknown",
+      cover: coverURL,
+      duration: duration,
+    }),
+  );
+}
 
-function loadTrackByObject(track) {
+function fallbackTrack(file, url, duration) {
+  return {
+    file,
+    title: url
+      .split("/")
+      .pop()
+      .replace(/\.mp3$/i, ""),
+    artist: "Unknown Artist",
+    cover:
+      'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"/%3E',
+    duration,
+  };
+}
+
+/* ==========================================================================
+   PLAYER CORE: Playback Controls
+   ========================================================================== */
+/* ==========================================================================
+   PLAYER CORE: Standard Load (Used when user clicks playlist items)
+   ========================================================================== */
+function loadTrack(index, autoplay = false) {
+  if (!playlist.length || index < 0 || index >= playlist.length) return;
+
+  currentTrackIndex = index;
+  const track = playlist[index];
+
   audio.src = track.file;
   audio.load();
 
+  // Update Player Bar with REAL metadata (already in playlist array)
   $("#player-title").textContent = track.title;
   $("#player-artist").textContent = track.artist;
   $("#player-cover").src = track.cover;
 
+  // Native Metadata Listener (Updates Seek Bar Max / Duration Display)
   const onMeta = () => {
     $("#dur-time").textContent = fmtTime(audio.duration);
+    const li = document.querySelector(
+      `.track-item[data-playlist-index="${index}"]`,
+    );
+    if (li)
+      li.querySelector(".track-duration").textContent = fmtTime(audio.duration);
     audio.removeEventListener("loadedmetadata", onMeta);
   };
-  audio.addEventListener("loadedmetadata", onMeta);
-  audio.play().catch(() => {});
+  audio.addEventListener("loadedmetadata", onMeta, { once: true });
+
+  // Active UI
+  document
+    .querySelectorAll(".playlist li")
+    .forEach((el, i) => el.classList.toggle("active", i === index));
+
+  if (autoplay) audio.play().catch(() => {});
   updatePlayPauseBtn();
 }
 
-function loadTrack(index, autoplay = false) {
-  if (!playlist.length) {
-    console.warn("Playlist is empty");
-    return;
-  }
-
-  if (index < 0 || index >= playlist.length) {
-    console.warn("Invalid track index:", index);
-    return;
-  }
-
-  currentTrackIndex = index;
-
-  const track = playlist[index];
-
-  loadTrackByObject(track);
-
-  // update active playlist item
-  document.querySelectorAll(".playlist li").forEach((el, i) => {
-    el.classList.toggle("active", i === index);
-  });
-
-  if (autoplay) {
-    audio.play().catch((err) => {
-      console.log("Autoplay blocked:", err);
-    });
-  }
-}
-
-// -------------------------------------------------------------------------
-// 9.5  Player control bindings
-// -------------------------------------------------------------------------
+// Global Control Bindings (Run Once)
 function bindPlayerControls() {
-  $("#btn-play").addEventListener("click", () => {
-    if (!audio.src && playlist.length) {
-      loadTrack(0, true);
-    } else {
-      audio.play();
-    }
-  });
+  if (playerControlsBound) return;
+  playerControlsBound = true;
+
+  $("#btn-play").addEventListener("click", () =>
+    !audio.src && playlist.length ? loadTrack(0, true) : audio.play(),
+  );
   $("#btn-pause").addEventListener("click", () => audio.pause());
   $("#btn-prev").addEventListener("click", () =>
     loadTrack(
@@ -593,25 +721,19 @@ function bindPlayerControls() {
     loadTrack((currentTrackIndex + 1) % playlist.length, true),
   );
 
-  const seek = $("#seek-bar");
-  seek.addEventListener("input", () => {
-    if (!audio.duration) return;
-
-    audio.currentTime = (seek.value / 100) * audio.duration;
+  $("#seek-bar").addEventListener("input", (e) => {
+    if (audio.duration)
+      audio.currentTime = (e.target.value / 100) * audio.duration;
   });
-  seek.addEventListener("change", () => {
-    audio.currentTime = (seek.value / 100) * (audio.duration || 0);
-    isSeeking = false;
-  });
+  $("#vol-bar").addEventListener(
+    "input",
+    (e) => (audio.volume = +e.target.value),
+  );
 
-  $("#vol-bar").addEventListener("input", (e) => {
-    audio.volume = +e.target.value;
-  });
-
-  // Keyboard shortcuts (space = play/pause, arrows = seek, shift+arrow = next/prev)
+  // Keyboard Shortcuts (Only active in Music section)
   document.addEventListener("keydown", (e) => {
-    if (currentSection !== "music") return;
-    if (e.target.tagName === "INPUT") return;
+    if (currentSection !== "music" || e.target.matches("input, textarea"))
+      return;
     if (e.code === "Space") {
       e.preventDefault();
       audio.paused ? audio.play() : audio.pause();
@@ -640,9 +762,7 @@ function bindPlayerControls() {
   });
 }
 
-// -------------------------------------------------------------------------
-// 9.6  Time‑update / progress bar sync
-// -------------------------------------------------------------------------
+// Time Updates & Auto-Advance
 function onTimeUpdate() {
   if (isSeeking) return;
   const cur = audio.currentTime,
@@ -651,31 +771,26 @@ function onTimeUpdate() {
   $("#seek-bar").value = dur ? (cur / dur) * 100 : 0;
 }
 function onTrackEnded() {
-  // auto‑advance
   loadTrack((currentTrackIndex + 1) % playlist.length, true);
 }
+
 function updatePlayPauseBtn() {
   const playing = !audio.paused;
   $("#btn-play").classList.toggle("hidden", playing);
   $("#btn-pause").classList.toggle("hidden", !playing);
+  $("#music-player").classList.toggle("playing", playing);
 }
+
 audio.addEventListener("play", updatePlayPauseBtn);
 audio.addEventListener("pause", updatePlayPauseBtn);
-audio.addEventListener("play", () => {
-  $("#music-player").classList.add("playing");
-});
-
-audio.addEventListener("pause", () => {
-  $("#music-player").classList.remove("playing");
-});
-
 audio.addEventListener("timeupdate", onTimeUpdate);
 audio.addEventListener("ended", onTrackEnded);
 
-// -------------------------------------------------------------------------
-// 10️⃣  BOOTSTRAP
-// -------------------------------------------------------------------------
+/* ==========================================================================
+   BOOTSTRAP
+   ========================================================================== */
 document.addEventListener("DOMContentLoaded", () => {
-  initNavigation(); // sets up hash‑router + nav highlighting
-  initLightbox(); // one global lightbox for all sections
+  initNavigation();
+  initLightbox();
+  initGlobalVisibility();
 });

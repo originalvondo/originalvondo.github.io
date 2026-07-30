@@ -1,17 +1,22 @@
 {
-  "hooper": [
-    "media/music/hooper/Heaven sent.mp3",
-    "media/music/hooper/Another Night!.mp3",
-    "media/music/hooper/Softcore.mp3",
-    "media/music/hooper/Strangers.mp3",
-    "media/music/hooper/want u.mp3"
+  "mms": [
+    "media/music/mms/Heaven sent.mp3",
+    "media/music/mms/Another Night!.mp3",
+    "media/music/mms/Softcore.mp3",
+    "media/music/mms/Strangers.mp3",
+    "media/music/mms/want u.mp3",
+    "media/music/mms/Aadat.mp3",
+    "media/music/mms/Tek It.mp3"
   ],
   "turnitup": [
     "media/music/turnitup/MISS THE RAGE REVERSE.mp3",
     "media/music/turnitup/Suffocation.mp3",
     "media/music/turnitup/Wish.mp3"
   ],
-  "arektarockband": ["media/music/arektarockband/Eden.mp3"],
+  "banglabangers": [
+    "media/music/banglabangers/Eden.mp3",
+    "media/music/banglabangers/60s Love.mp3"
+  ],
   "U Weren't Here I Really Miss You": [
     "media/music/uwerenthereireallymissyou/U Weren't Here I Really Miss You.mp3"
   ],
