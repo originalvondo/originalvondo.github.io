@@ -320,17 +320,17 @@ async function processAndRenderTrack(item, targetIndex) {
   const track = await readID3(item.fileInfo.download_url);
   if (!track) return null;
 
-  // Attach playlist metadata for UI grouping
   track.playlistName = item.playlistName;
 
-  // Insert into global playlist array at correct index
-  playlist.splice(targetIndex, 0, track);
+  // Use push if targetIndex === playlist.length (appending), else splice
+  // Since we process sequentially, targetIndex ALWAYS === playlist.length here.
+  playlist.push(track); // Safer & faster than splice for appending
 
-  // Render UI
   await renderTrackInDOM(track, targetIndex, item.playlistName);
 
-  return track;
+  return track; // Return track so the await in scheduleBackgroundProcessing works
 }
+
 
 /**
  * Renders a single track <li> into the correct playlist <ul> in the DOM.
@@ -392,38 +392,32 @@ function renderTrackInDOM(track, index, playlistName) {
 }
 
 /**
- * Processes remaining tracks in chunks during browser idle time.
+ * Processes remaining tracks ONE BY ONE in order, yielding to main thread between each.
+ * This guarantees playlist array order == DOM order == Manifest order.
  */
 function scheduleBackgroundProcessing(queue) {
-  const BATCH_SIZE = 3; // Process 3 tracks per idle callback
-  let currentIndex = playlist.length; // Next index to insert at
+  let currentIndex = playlist.length; // Starts at 1 (since index 0 is done)
 
-  const workLoop = (deadline) => {
-    while ((deadline.timeRemaining() > 0 || deadline.didTimeout) && queue.length > 0) {
-      const item = queue.shift();
-      // processAndRenderTrack is async, but we don't await it here to keep the loop synchronous-ish
-      // We pass the index so it inserts into the correct spot in the array.
-      processAndRenderTrack(item, currentIndex);
+  // Use an async IIFE so we can use 'await' inside the loop
+  (async function processQueue() {
+    for (const item of queue) {
+      // 1. Process & Render THIS track fully (await ensures array/DOM order)
+      await processAndRenderTrack(item, currentIndex);
       currentIndex++;
-    }
 
-    if (queue.length > 0) {
-      // Schedule next batch
-      if (window.requestIdleCallback) {
-        requestIdleCallback(workLoop, { timeout: 5000 });
-      } else {
-        setTimeout(() => workLoop({ timeRemaining: () => Infinity, didTimeout: true }), 50);
-      }
+      // 2. YIELD to browser: allows paint, interaction, other scripts to run
+      // requestIdleCallback is best; fallback to setTimeout(0) for Safari/older browsers
+      await new Promise(resolve => {
+        if (window.requestIdleCallback) {
+          requestIdleCallback(resolve, { timeout: 1000 });
+        } else {
+          setTimeout(resolve, 0);
+        }
+      });
     }
-  };
-
-  // Kick off
-  if (window.requestIdleCallback) {
-    requestIdleCallback(workLoop, { timeout: 5000 });
-  } else {
-    setTimeout(() => workLoop({ timeRemaining: () => Infinity, didTimeout: true }), 50);
-  }
+  })();
 }
+
 
 // -------------------------------------------------------------------------
 // ID3 READER (Optimized: Returns duration via quick Audio probe)
