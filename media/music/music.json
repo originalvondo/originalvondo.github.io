@@ -1,4 +1,11 @@
 {
+  "hooper": [
+    "media/music/hooper/Heaven sent.mp3",
+    "media/music/hooper/Another Night!.mp3",
+    "media/music/hooper/Softcore.mp3",
+    "media/music/hooper/Strangers.mp3",
+    "media/music/hooper/want u.mp3"
+  ],
   "turnitup": [
     "media/music/turnitup/MISS THE RAGE REVERSE.mp3",
     "media/music/turnitup/Suffocation.mp3",
@@ -12,13 +19,6 @@
     "media/music/bringbackthe17/Friends.mp3",
     "media/music/bringbackthe17/Company.mp3",
     "media/music/bringbackthe17/Let me love you.mp3"
-  ],
-  "hooper": [
-    "media/music/hooper/Another Night!.mp3",
-    "media/music/hooper/Softcore.mp3",
-    "media/music/hooper/Strangers.mp3",
-    "media/music/hooper/Heaven sent.mp3",
-    "media/music/hooper/want u.mp3"
   ],
   "jjk": ["media/music/jjk/more than words.mp3"]
 }
