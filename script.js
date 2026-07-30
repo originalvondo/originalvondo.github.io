@@ -3,7 +3,7 @@ const CONFIG = {
   repoOwner: "originalvondo",
   repoName: "originalvondo.github.io",
   excludeForks: true,
-  maxRepos: 10,
+  maxRepos: 15,
 
   devMusic: {},
 
