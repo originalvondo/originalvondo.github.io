@@ -216,8 +216,9 @@ body {
   grid-template-columns: repeat(12, 1fr);
   gap: 20px;
   margin-bottom: 80px;
-  /* Adjust grid auto rows to allow clean overlapping placement */
-  grid-auto-rows: 60px;
+  /* Use auto rows so items size to their content (images) naturally */
+  grid-auto-rows: auto;
+  align-items: start;
 }
 
 /* Collage Items default setup */
@@ -240,7 +241,6 @@ body {
 
 .image-wrapper {
   width: 100%;
-  overflow: hidden;
   border: 1px solid rgba(0, 0, 0, 0.08);
   background-color: #eae7e0;
   transition: var(--transition-smooth);
@@ -249,8 +249,8 @@ body {
 
 .image-wrapper img {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
+  object-fit: contain;
   display: block;
   filter: grayscale(15%) contrast(95%);
   transition: var(--transition-smooth);
@@ -296,17 +296,11 @@ body {
   grid-column: 1 / span 3;
   grid-row: 1 / span 5;
 }
-.pos-1 .image-wrapper {
-  height: 220px;
-}
 
 /* POS 2: Mid-high center-left, landscape/square */
 .pos-2 {
   grid-column: 4 / span 3;
   grid-row: 3 / span 4;
-}
-.pos-2 .image-wrapper {
-  height: 160px;
 }
 
 /* POS 3: Center-high right, tall portrait */
@@ -314,17 +308,11 @@ body {
   grid-column: 8 / span 3;
   grid-row: 1 / span 6;
 }
-.pos-3 .image-wrapper {
-  height: 250px;
-}
 
 /* POS 4: Far right, smaller details */
 .pos-4 {
   grid-column: 11 / span 2;
   grid-row: 2 / span 4;
-}
-.pos-4 .image-wrapper {
-  height: 150px;
 }
 
 /* POS 5: Low-mid left, landscape ratio */
@@ -332,17 +320,11 @@ body {
   grid-column: 2 / span 3;
   grid-row: 7 / span 4;
 }
-.pos-5 .image-wrapper {
-  height: 160px;
-}
 
 /* POS 6: Center-low B&W Polaroid square */
 .pos-6 {
   grid-column: 5 / span 3;
   grid-row: 8 / span 5;
-}
-.pos-6 .image-wrapper {
-  height: 200px;
 }
 
 /* POS 7: Low right, vertical */
@@ -350,17 +332,11 @@ body {
   grid-column: 9 / span 3;
   grid-row: 8 / span 5;
 }
-.pos-7 .image-wrapper {
-  height: 220px;
-}
 
 /* POS 8: Lower left-mid vertical */
 .pos-8 {
   grid-column: 4 / span 3;
   grid-row: 13 / span 5;
-}
-.pos-8 .image-wrapper {
-  height: 210px;
 }
 
 /* Floating Accent elements (Blue Squares / Dots from Image 1) */
@@ -740,7 +716,6 @@ body {
 
   .collage-item .image-wrapper {
     height: auto !important; /* Let aspect ratio flow */
-    max-height: 400px;
   }
 
   .floating-accent {
