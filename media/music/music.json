@@ -32,5 +32,13 @@
   ],
   "jjk": [
     "media/music/jjk/more than words.mp3"
+  ],
+  "volumemax": [
+    "media/music/volumemax/Chand Sifarish.mp3",
+    "media/music/volumemax/Tarasti Hai Nigahen.mp3",
+    "media/music/volumemax/Tera Rastaa Chhodoon Na.mp3",
+    "media/music/volumemax/Tu Chahiye.mp3",
+    "media/music/volumemax/Uff.mp3",
+    "media/music/volumemax/Ve Kamleya (From -Rocky Aur Rani Kii Prem Kahaani-).mp3"
   ]
 }
