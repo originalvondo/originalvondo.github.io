@@ -6,12 +6,17 @@
     "media/music/mms/Strangers.mp3",
     "media/music/mms/want u.mp3",
     "media/music/mms/Aadat.mp3",
-    "media/music/mms/Tek It.mp3"
+    "media/music/mms/Tek It.mp3",
+    "media/music/mms/Harvey.mp3",
+    "media/music/mms/Toh Phir Aao.mp3"
   ],
   "turnitup": [
     "media/music/turnitup/MISS THE RAGE REVERSE.mp3",
     "media/music/turnitup/Suffocation.mp3",
-    "media/music/turnitup/Wish.mp3"
+    "media/music/turnitup/Wish.mp3",
+    "media/music/turnitup/Maybe Tomorrow.mp3",
+    "media/music/turnitup/Mind Over Matter.mp3",
+    "media/music/turnitup/Overdrive.mp3"
   ],
   "banglabangers": [
     "media/music/banglabangers/Eden.mp3",
@@ -25,5 +30,7 @@
     "media/music/bringbackthe17/Company.mp3",
     "media/music/bringbackthe17/Let me love you.mp3"
   ],
-  "jjk": ["media/music/jjk/more than words.mp3"]
+  "jjk": [
+    "media/music/jjk/more than words.mp3"
+  ]
 }
