@@ -1,4 +1,11 @@
 {
+  "turnitup": [
+    "media/music/turnitup/MISS THE RAGE REVERSE.mp3",
+    "media/music/turnitup/Suffocation.mp3",
+    "media/music/turnitup/Wish.mp3",
+    "media/music/turnitup/Mind Over Matter.mp3",
+    "media/music/turnitup/Overdrive.mp3"
+  ],
   "mms": [
     "media/music/mms/Heaven sent.mp3",
     "media/music/mms/Another Night!.mp3",
@@ -9,13 +16,6 @@
     "media/music/mms/Tek It.mp3",
     "media/music/mms/Harvey.mp3",
     "media/music/mms/Toh Phir Aao.mp3"
-  ],
-  "turnitup": [
-    "media/music/turnitup/MISS THE RAGE REVERSE.mp3",
-    "media/music/turnitup/Suffocation.mp3",
-    "media/music/turnitup/Wish.mp3",
-    "media/music/turnitup/Mind Over Matter.mp3",
-    "media/music/turnitup/Overdrive.mp3"
   ],
   "banglabangers": [
     "media/music/banglabangers/Eden.mp3",
