@@ -289,24 +289,35 @@ async function initMusic() {
 
   // 1. SAFELY GET CONTAINER (Wait one microtask for DOM insertion if needed)
   let container = $("#playlist-container");
-  
+
   if (!container) {
     // Fallback: Wait for paint cycle (handles rare race conditions with innerHTML)
-    await new Promise(r => requestAnimationFrame(r));
+    await new Promise((r) => requestAnimationFrame(r));
     container = $("#playlist-container");
   }
 
-  // 2. HARD FAIL WITH CLEAR MESSAGE IF STILL MISSING
+  // 2. CREATE A FALLBACK CONTAINER IF THE SECTION HTML IS STALE OR MISSING IT
   if (!container) {
-    const msg = `[Music] FATAL: #playlist-container not found in DOM. 
-    Check sections/music.html for <div id="playlist-container">. 
-    Current #content-area HTML: ${$("#content-area").innerHTML.slice(0, 200)}...`;
+    const contentArea = $("#content-area");
+    if (contentArea) {
+      container = document.createElement("div");
+      container.id = "playlist-container";
+      container.className = "playlist-container";
+      contentArea.appendChild(container);
+    }
+  }
+
+  // 3. HARD FAIL ONLY IF THE CONTAINER STILL COULD NOT BE CREATED
+  if (!container) {
+    const contentArea = $("#content-area");
+    const msg = `[Music] FATAL: #playlist-container not found in DOM. Check sections/music.html for a playlist container.`;
     console.error(msg);
-    // Render error visibly in the page so you see it without console
-    $("#content-area").innerHTML = `<div style="color:red; padding:2rem; font-family:monospace;">
-      <b>Music Init Failed:</b> Missing <code>#playlist-container</code> in section HTML.
-      <br>Deploy the latest <code>sections/music.html</code> and hard refresh (Ctrl+Shift+R).
-    </div>`;
+    if (contentArea) {
+      contentArea.innerHTML = `<div style="color:red; padding:2rem; font-family:monospace;">
+        <b>Music Init Failed:</b> The playlist container could not be created.
+        <br>Please refresh the page or reload the music section.
+      </div>`;
+    }
     return;
   }
 
