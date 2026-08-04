@@ -423,7 +423,7 @@ async function processAndRenderTrack(item, targetIndex) {
     title: meta.title || item.name.replace(/\.mp3$/i, ""),
     artist: meta.artist || "Unknown Artist",
     cover: meta.cover || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"/%3E',
-    duration: 0,
+    duration: meta.duration,
     playlistName: item.playlistName,
   };
 
@@ -431,15 +431,8 @@ async function processAndRenderTrack(item, targetIndex) {
   playlist.push(track);
   await renderTrackInDOM(track, targetIndex, item.playlistName);
 
-  // 3. Probe Duration via Range Request (Fast, ~2KB headers)
-  try {
-    const duration = await probeDuration(item.url);
-    track.duration = duration;
-    const li = document.querySelector(`.track-item[data-playlist-index="${targetIndex}"]`);
-    if (li) li.querySelector(".track-duration").textContent = fmtTime(duration);
-  } catch (e) {
-    console.warn("Duration probe failed for", item.url, e);
-  }
+  const li = document.querySelector(`.track-item[data-playlist-index="${targetIndex}"]`);
+  li.querySelector(".track-duration").textContent = fmtTime(track.duration);
 
   return track;
 }
@@ -476,14 +469,19 @@ function readID3Metadata(url) {
 
       window.jsmediatags.read(absoluteURL, {
         onSuccess: (tag) => {
-          const { title, artist, picture } = tag.tags || {};
+          const { title, artist, picture, TLEN } = tag.tags || {};
           let coverURL = null;
           if (picture) {
             const blob = new Blob([new Uint8Array(picture.data)], { type: picture.format });
             coverURL = URL.createObjectURL(blob);
             blobUrlsToRevoke.add(coverURL);
           }
-          resolve({ title, artist, cover: coverURL });
+          let duration = 0;
+          if (TLEN) {
+            const ms = parseInt(TLEN.data, 10);
+            if (!isNaN(ms)) duration = ms / 1000;
+          }
+          resolve({ title, artist, cover: coverURL, duration });
         },
         onError: () => resolve({}), // Fail silent, fallback to filename
       });
