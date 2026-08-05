@@ -17,10 +17,6 @@
     "media/music/mms/Harvey.mp3",
     "media/music/mms/Toh Phir Aao.mp3"
   ],
-  "banglabangers": [
-    "media/music/banglabangers/Eden.mp3",
-    "media/music/banglabangers/60s Love.mp3"
-  ],
   "U Weren't Here I Really Miss You": [
     "media/music/uwerenthereireallymissyou/U Weren't Here I Really Miss You.mp3"
   ],
@@ -41,6 +37,8 @@
     "media/music/volumemax/Ve Kamleya (From -Rocky Aur Rani Kii Prem Kahaani-).mp3",
     "media/music/volumemax/Ik Vaari Aa (From -Raabta-).mp3",
     "media/music/volumemax/Phir Kabhi.mp3",
-    "media/music/volumemax/Tomake Chai.mp3"
+    "media/music/volumemax/Tomake Chai.mp3",
+    "media/music/volumemax/60s Love.mp3",
+    "media/music/volumemax/Eden.mp3"
   ]
 }
