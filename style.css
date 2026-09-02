@@ -1,13 +1,11 @@
-/* --- Global Variables & Custom Colors --- */
 :root {
-  --bg-color: #f7f5f0; /* Warm paper off-white */
-  --text-color: #111111; /* Deep matte black */
-  --accent-blue: #0026e3; /* Royal Electric Blue from Image 1 */
-  --accent-gray: #7a7a7a; /* Medium gray for captions */
-  --border-color: rgba(0, 38, 227, 0.15); /* Soft blue border */
-  --grid-color: rgba(0, 0, 0, 0.035); /* Subtle grid line color */
+  --bg-color: #f7f5f0;
+  --text-color: #111111;
+  --accent-blue: #0026e3;
+  --accent-gray: #7a7a7a;
+  --border-color: rgba(0, 38, 227, 0.15);
+  --grid-color: rgba(0, 0, 0, 0.035);
 
-  /* Font families */
   --font-serif: "Cormorant Garamond", serif;
   --font-sans: "Space Grotesk", sans-serif;
   --font-mono: "Space Mono", monospace;
@@ -15,7 +13,6 @@
   --transition-smooth: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* --- Base Setup --- */
 * {
   margin: 0;
   padding: 0;
@@ -35,7 +32,6 @@ body {
   position: relative;
 }
 
-/* --- Special Background Effects --- */
 .grid-background {
   position: fixed;
   top: 0;
@@ -62,17 +58,15 @@ body {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 
-/* --- Container & Layout --- */
 .container {
   position: relative;
-  z-index: 3; /* Above backgrounds */
+  z-index: 3;
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 40px;
   min-height: 100vh;
 }
 
-/* --- Navbar (Minimalist & Floating) --- */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -126,9 +120,8 @@ body {
   width: 100%;
 }
 
-/* --- Page Sections --- */
 .section {
-  display: block; /* Controlled via JavaScript active class */
+  display: block;
   animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
@@ -147,7 +140,6 @@ body {
   }
 }
 
-/* --- HERO SECTION LAYOUT --- */
 .hero-layout {
   display: grid;
   grid-template-columns: 1fr 2fr 1fr;
@@ -208,19 +200,17 @@ body {
   text-transform: lowercase;
 }
 
-/* --- COLLAGE GRID --- */
 .collage-grid {
   position: relative;
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   gap: 20px;
   margin-bottom: 80px;
-  /* Use auto rows so items size to their content (images) naturally */
+
   grid-auto-rows: auto;
   align-items: start;
 }
 
-/* Collage Items default setup */
 .collage-item {
   position: relative;
   display: flex;
@@ -255,7 +245,6 @@ body {
   transition: var(--transition-smooth);
 }
 
-/* Gray/Monochrome styling as seen in polaroid filters */
 .image-wrapper.bw img {
   filter: grayscale(100%) contrast(105%) brightness(95%);
 }
@@ -269,7 +258,6 @@ body {
   transition: var(--transition-smooth);
 }
 
-/* Interactive Hover States */
 .collage-item:hover {
   transform: translateY(-5px);
   z-index: 10;
@@ -288,57 +276,46 @@ body {
   color: var(--accent-blue);
 }
 
-/* Precise Positions of Asymmetric Grid Cells (Inspired by Image 1 & 2) */
-
-/* POS 1: High left, medium size vertical portrait */
 .pos-1 {
   grid-column: 1 / span 3;
   grid-row: 1 / span 5;
 }
 
-/* POS 2: Mid-high center-left, landscape/square */
 .pos-2 {
   grid-column: 4 / span 3;
   grid-row: 3 / span 4;
 }
 
-/* POS 3: Center-high right, tall portrait */
 .pos-3 {
   grid-column: 8 / span 3;
   grid-row: 1 / span 6;
 }
 
-/* POS 4: Far right, smaller details */
 .pos-4 {
   grid-column: 11 / span 2;
   grid-row: 2 / span 4;
 }
 
-/* POS 5: Low-mid left, landscape ratio */
 .pos-5 {
   grid-column: 2 / span 3;
   grid-row: 7 / span 4;
 }
 
-/* POS 6: Center-low B&W Polaroid square */
 .pos-6 {
   grid-column: 5 / span 3;
   grid-row: 8 / span 5;
 }
 
-/* POS 7: Low right, vertical */
 .pos-7 {
   grid-column: 9 / span 3;
   grid-row: 8 / span 5;
 }
 
-/* POS 8: Lower left-mid vertical */
 .pos-8 {
   grid-column: 4 / span 3;
   grid-row: 13 / span 5;
 }
 
-/* Floating Accent elements (Blue Squares / Dots from Image 1) */
 .floating-accent {
   position: absolute;
   width: 14px;
@@ -367,7 +344,6 @@ body {
   transform: rotate(45deg) scale(1.2);
 }
 
-/* --- Section Footer (Image 1 Typography) --- */
 .section-footer {
   display: flex;
   justify-content: space-between;
@@ -391,7 +367,6 @@ body {
   font-weight: 700;
 }
 
-/* --- SECTION ARCHIVE (GitHub Projects Grid) --- */
 .section-header {
   margin-bottom: 60px;
 }
@@ -414,7 +389,6 @@ body {
   color: var(--accent-gray);
 }
 
-/* Grid of Projects */
 .projects-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -506,7 +480,6 @@ body {
   color: var(--accent-blue);
 }
 
-/* Hover States for Cards */
 .project-card:hover {
   transform: translateY(-8px);
   border-color: rgba(0, 38, 227, 0.3);
@@ -517,7 +490,6 @@ body {
   transform: scaleX(1);
 }
 
-/* --- SECTION ABOUT --- */
 .about-container {
   display: grid;
   grid-template-columns: 1fr 1.2fr;
@@ -589,7 +561,6 @@ body {
   border-color: var(--accent-blue);
 }
 
-/* --- LIGHTBOX MODAL (Interactive Image Viewer) --- */
 .lightbox-modal {
   display: none;
   position: fixed;
@@ -603,7 +574,7 @@ body {
     245,
     240,
     0.96
-  ); /* Matches warm background with high opacity */
+  );
   backdrop-filter: blur(15px);
   justify-content: center;
   align-items: center;
@@ -665,7 +636,6 @@ body {
   text-align: center;
 }
 
-/* --- RESPONSIVE MEDIA QUERIES (Mobile Elegance) --- */
 @media (max-width: 1024px) {
   .container {
     padding: 0 30px;
@@ -702,7 +672,6 @@ body {
     font-size: 1.2rem;
   }
 
-  /* Adapt Collage Grid to vertical stacking for mobile reading flow */
   .collage-grid {
     display: flex;
     flex-direction: column;
@@ -714,11 +683,11 @@ body {
   }
 
   .collage-item .image-wrapper {
-    height: auto !important; /* Let aspect ratio flow */
+    height: auto !important;
   }
 
   .floating-accent {
-    display: none; /* Hide accents on small screens to reduce clutter */
+    display: none;
   }
 
   .section-footer {
@@ -741,7 +710,6 @@ body {
   }
 }
 
-/* ---------- MUSIC PLAYER ---------- */
 .music-player {
   display: grid;
   grid-template-columns: 180px 1fr;
@@ -920,7 +888,6 @@ body {
   color: var(--accent-gray);
 }
 
-/* Responsive tweaks */
 @media (max-width: 768px) {
   .music-player {
     grid-template-columns: 1fr;
